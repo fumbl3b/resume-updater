@@ -5,6 +5,8 @@ import SubmitButton from './components/SubmitButton';
 import InsightsList from './components/InsightsList';
 import './App.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
 function App() {
   const [jobDescription, setJobDescription] = useState('');
   const [resumeFile, setResumeFile] = useState(null);
@@ -21,7 +23,7 @@ function App() {
     if (text.trim()) {
       setKeywordLoading(true);
       try {
-        const response = await fetch('http://localhost:5001/extract-keywords', {
+        const response = await fetch(`${API_URL}/extract-keywords`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ job_description: text })
@@ -48,7 +50,7 @@ function App() {
     reader.onload = () => {
       const resumeText = reader.result;
 
-      fetch('http://localhost:5001/suggest-improvements', {
+      fetch(`${API_URL}/suggest-improvements`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -93,7 +95,7 @@ function App() {
     reader.onload = () => {
       const resumeText = reader.result;
       setLoading(true);
-      fetch('http://localhost:5001/generate-optimized-resume', {
+      fetch(`${API_URL}/generate-optimized-resume`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -153,12 +155,12 @@ function App() {
     try {
       // Fetch keywords and benefits in parallel
       const [keywordsResponse, benefitsResponse] = await Promise.all([
-        fetch('http://localhost:5001/extract-keywords', {
+        fetch(`${API_URL}/extract-keywords`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ job_description: jobDescription })
         }),
-        fetch('http://localhost:5001/extract-benefits', {
+        fetch(`${API_URL}/extract-benefits`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ job_description: jobDescription })
