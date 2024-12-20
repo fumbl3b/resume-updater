@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import JobDescription from './components/JobDescription';
 import ResumeUpload from './components/ResumeUpload';
 import SubmitButton from './components/SubmitButton';
-import KeywordList from './components/KeywordList';
-import BenefitsList from './components/BenefitsList';
+import InsightsList from './components/InsightsList';
 import './App.css';
 
 function App() {
@@ -214,15 +213,11 @@ function App() {
           {(keywordLoading || benefitsLoading) && 
             <div className="keyword-loading">Analyzing...</div>
           }
-          {keywords && (
-            <KeywordList 
-              keywords={keywords} 
+          {(keywords || benefits) && (
+            <InsightsList 
+              keywords={keywords}
+              benefits={benefits}
               onRemoveKeyword={handleRemoveKeyword}
-            />
-          )}
-          {benefits && (
-            <BenefitsList 
-              benefits={benefits} 
               onRemoveBenefit={handleRemoveBenefit}
             />
           )}
@@ -260,7 +255,7 @@ function App() {
         )}
       </main>
       <footer className="footer">
-        <p>&copy; 2024 Resume Suggestions Tool. All rights reserved.</p>
+        <p>&copy; 2024 Fumble Labs. All rights reserved.</p>
       </footer>
     </div>
   );

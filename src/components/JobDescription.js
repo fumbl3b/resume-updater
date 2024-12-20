@@ -5,8 +5,8 @@ const JobDescription = ({ value, onChange }) => {
   const editorRef = useRef(null);
 
   useEffect(() => {
-    if (editorRef.current && !value) {
-      editorRef.current.innerText = '';
+    if (editorRef.current) {
+      editorRef.current.innerText = value;
     }
   }, [value]);
 
@@ -26,9 +26,7 @@ const JobDescription = ({ value, onChange }) => {
         data-placeholder="Paste the job description here..."
         role="textbox"
         aria-multiline="true"
-      >
-        {value}
-      </div>
+      />
     </div>
   );
 };
