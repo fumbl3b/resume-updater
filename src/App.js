@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import JobDescription from './components/JobDescription';
 import ResumeUpload from './components/ResumeUpload';
 import SubmitButton from './components/SubmitButton';
+import KeywordList from './components/KeywordList';
+import BenefitsList from './components/BenefitsList';
 import './App.css';
 
 function App() {
@@ -12,6 +14,8 @@ function App() {
   const [loading, setLoading] = useState(false);             // For showing a loading indicator
   const [keywords, setKeywords] = useState('');
   const [keywordLoading, setKeywordLoading] = useState(false);
+  const [benefits, setBenefits] = useState('');
+  const [benefitsLoading, setBenefitsLoading] = useState(false);
 
   const handleJobDescriptionChange = async (text) => {
     setJobDescription(text);
@@ -145,20 +149,46 @@ function App() {
     }
 
     setKeywordLoading(true);
+    setBenefitsLoading(true);
+
     try {
-      const response = await fetch('http://localhost:5001/extract-keywords', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ job_description: jobDescription })
-      });
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-      const data = await response.json();
-      setKeywords(data.keywords);
+      // Fetch keywords and benefits in parallel
+      const [keywordsResponse, benefitsResponse] = await Promise.all([
+        fetch('http://localhost:5001/extract-keywords', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ job_description: jobDescription })
+        }),
+        fetch('http://localhost:5001/extract-benefits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ job_description: jobDescription })
+        })
+      ]);
+
+      const keywordsData = await keywordsResponse.json();
+      const benefitsData = await benefitsResponse.json();
+
+      setKeywords(keywordsData.keywords);
+      setBenefits(benefitsData.keywords); // Assuming same response structure
     } catch (error) {
       console.error('Error:', error);
     } finally {
       setKeywordLoading(false);
+      setBenefitsLoading(false);
     }
+  };
+
+  const handleRemoveKeyword = (index) => {
+    const keywordArray = keywords.split(',');
+    keywordArray.splice(index, 1);
+    setKeywords(keywordArray.join(','));
+  };
+
+  const handleRemoveBenefit = (index) => {
+    const benefitArray = benefits.split(',');
+    benefitArray.splice(index, 1);
+    setBenefits(benefitArray.join(','));
   };
 
   return (
@@ -166,25 +196,37 @@ function App() {
       <header className="header">
         <h1>Resume Suggestions Tool</h1>
       </header>
-      <main className="main">
-        <JobDescription 
-          value={jobDescription} 
-          onChange={setJobDescription} 
-        />
-        <button 
-          className="analyze-button" 
-          onClick={handleAnalyzeClick}
-          disabled={!jobDescription.trim()}
-        >
-          Analyze Job Description
-        </button>
-        {keywordLoading && <div className="keyword-loading">Analyzing job description...</div>}
-        {keywords && (
-          <div className="keywords-section">
-            <h2>Key Requirements</h2>
-            <p>{keywords}</p>
-          </div>
-        )}
+      <main className="main-container">
+        <div className="left-panel">
+          <JobDescription 
+            value={jobDescription} 
+            onChange={setJobDescription} 
+          />
+          <button 
+            className="analyze-button" 
+            onClick={handleAnalyzeClick}
+            disabled={!jobDescription.trim()}
+          >
+            Analyze Job Description
+          </button>
+        </div>
+        <div className="right-panel">
+          {(keywordLoading || benefitsLoading) && 
+            <div className="keyword-loading">Analyzing...</div>
+          }
+          {keywords && (
+            <KeywordList 
+              keywords={keywords} 
+              onRemoveKeyword={handleRemoveKeyword}
+            />
+          )}
+          {benefits && (
+            <BenefitsList 
+              benefits={benefits} 
+              onRemoveBenefit={handleRemoveBenefit}
+            />
+          )}
+        </div>
         <ResumeUpload resumeFile={resumeFile} setResumeFile={setResumeFile} />
         
         {/* First button: Get Suggestions */}

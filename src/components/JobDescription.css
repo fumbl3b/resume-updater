@@ -1,32 +1,59 @@
 /* src/components/JobDescription.css */
 
 .job-description {
-    width: 80%;
-    margin-bottom: 20px;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  flex-grow: 1;
+  margin-bottom: 20px;
+}
   
-  .job-description label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
+.job-description label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
   
-  .job-description textarea {
-    width: 100%;
-    padding: 10px;
-    resize: vertical;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
+.job-description textarea {
+  width: 100%;
+  padding: 10px;
+  resize: vertical;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
 
 .editable-content {
-  min-height: 200px;
-  border: 1px solid #ccc;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 4px;
+  min-height: 100px;
+  max-height: 300px;
+  width: 100%;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  padding: var(--spacing);
+  border-radius: var(--border-radius);
   outline: none;
   background: white;
+  font-size: 14px;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.editable-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.editable-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.editable-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.editable-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 .editable-content:empty:before {

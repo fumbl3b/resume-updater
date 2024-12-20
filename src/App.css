@@ -1,5 +1,13 @@
 /* src/App.css */
 
+:root {
+  --primary-color: #1976d2;
+  --primary-light: #e3f2fd;
+  --shadow: 0 2px 4px rgba(0,0,0,0.1);
+  --border-radius: 8px;
+  --spacing: 20px;
+}
+
 .app {
   display: flex;
   flex-direction: column;
@@ -45,16 +53,44 @@
 }
 
 .analyze-button {
-  margin: 20px 0;
-  padding: 10px 20px;
-  background-color: #007bff;
+  margin-top: var(--spacing);
+  padding: 8px 16px;
+  background: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 20px;
   cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.analyze-button:hover {
+  background-color: #1565c0;
 }
 
 .analyze-button:disabled {
-  background-color: #cccccc;
+  background-color: #ccc;
   cursor: not-allowed;
+}
+
+.main-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  padding: var(--spacing);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.left-panel, .right-panel {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: var(--spacing);
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    grid-template-columns: 1fr;
+  }
 }
