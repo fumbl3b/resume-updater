@@ -1,0 +1,40 @@
+/* src/components/JobDescription.css */
+
+.job-description {
+    width: 80%;
+    margin-bottom: 20px;
+  }
+  
+  .job-description label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .job-description textarea {
+    width: 100%;
+    padding: 10px;
+    resize: vertical;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+.editable-content {
+  min-height: 200px;
+  border: 1px solid #ccc;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 4px;
+  outline: none;
+  background: white;
+}
+
+.editable-content:empty:before {
+  content: attr(data-placeholder);
+  color: #757575;
+}
+
+.editable-content:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
