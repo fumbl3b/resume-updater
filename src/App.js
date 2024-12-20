@@ -3,9 +3,16 @@ import JobDescription from './components/JobDescription';
 import ResumeUpload from './components/ResumeUpload';
 import SubmitButton from './components/SubmitButton';
 import InsightsList from './components/InsightsList';
+import ResumeText from './components/ResumeText';
+import Accordion from './components/Accordion';
+import Logo from './components/Logo';
+import PDFViewer from './components/PDFViewer';
 import './App.css';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+const API_URL = process.env.REACT_APP_API_URL;
+if (!API_URL) {
+  throw new Error('API_URL environment variable is not set');
+}
 
 function App() {
   const [jobDescription, setJobDescription] = useState('');
@@ -17,50 +24,38 @@ function App() {
   const [keywordLoading, setKeywordLoading] = useState(false);
   const [benefits, setBenefits] = useState('');
   const [benefitsLoading, setBenefitsLoading] = useState(false);
+  const [resumeText, setResumeText] = useState('');
+  const [latexContent, setLatexContent] = useState('');
+  const [resumeGenerating, setResumeGenerating] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
 
-  const handleGetSuggestions = () => {
-    if (!jobDescription || !resumeFile) {
-      alert('Please fill in all fields');
+  const handleGetSuggestions = async () => {
+    if (!resumeText || !jobDescription) {
+      alert('Please provide both resume and job description');
       return;
     }
 
-    // Read the resume file as text before sending
-    const reader = new FileReader();
-    reader.onload = () => {
-      const resumeText = reader.result;
-
-      fetch(`${API_URL}/suggest-improvements`, {
+    setSuggestionsLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/suggest-improvements`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          job_description: jobDescription,
-          resume_text: resumeText
+          resume_text: resumeText,
+          job_description: jobDescription
         })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Suggestions:', data);
-        setSuggestions(data.suggestions); // suggestions should be markdown text
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error occurred while processing request');
       });
-    };
 
-    reader.onerror = (error) => {
-      console.error('Error reading file:', error);
-      alert('Could not read the resume file.');
-    };
-
-    reader.readAsText(resumeFile);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const data = await response.json();
+      setSuggestions(data.suggestions);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error getting suggestions');
+    } finally {
+      setSuggestionsLoading(false);
+    }
   };
 
   const handleGenerateOptimizedResume = () => {
@@ -171,72 +166,159 @@ function App() {
     setBenefits(benefitArray.join(','));
   };
 
+  const handleExtractText = async () => {
+    if (!resumeFile) return;
+
+    const formData = new FormData();
+    formData.append('file', resumeFile);
+
+    try {
+      const response = await fetch(`${API_URL}/extract-resume-text`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const data = await response.json();
+      setResumeText(data.text);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error extracting resume text');
+    }
+  };
+
+  const handleGenerateResume = async () => {
+    if (!suggestions || !resumeText) {
+      alert('Please get suggestions first');
+      return;
+    }
+    
+    setResumeGenerating(true);
+    try {
+      const response = await fetch(`${API_URL}/generate-optimized-resume`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          resume_text: resumeText,
+          suggestions: suggestions
+        })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      
+      // Handle LaTeX content
+      setLatexContent(data.tex_content);
+      
+      // Handle PDF content
+      const pdfBinary = atob(data.pdf_content);
+      const pdfArray = new Uint8Array(pdfBinary.length);
+      for (let i = 0; i < pdfBinary.length; i++) {
+        pdfArray[i] = pdfBinary.charCodeAt(i);
+      }
+      
+      const pdfBlob = new Blob([pdfArray], { type: 'application/pdf' });
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      setPdfUrl(pdfUrl);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error generating resume');
+    } finally {
+      setResumeGenerating(false);
+    }
+  };
+
   return (
     <div className="app">
-      <header className="header">
-        <h1>Resume Suggestions Tool</h1>
-      </header>
+      <Logo />
       <main className="main-container">
-        <div className="left-panel">
+        <Accordion title="Job Description" isOpen={true}>
           <JobDescription 
             value={jobDescription} 
             onChange={setJobDescription} 
           />
-          <button 
-            className="analyze-button" 
-            onClick={handleAnalyzeClick}
-            disabled={!jobDescription.trim()}
-          >
-            Analyze Job Description
-          </button>
-        </div>
-        <div className="right-panel">
-          {(keywordLoading || benefitsLoading) && 
-            <div className="keyword-loading">Analyzing...</div>
-          }
-          {(keywords || benefits) && (
+        </Accordion>
+        
+        <button 
+          className="analyze-button action-button" 
+          onClick={handleAnalyzeClick}
+          disabled={!jobDescription.trim()}
+        >
+          Analyze Job Description
+        </button>
+
+        <Accordion title="Job Insights" isOpen={true}>
+          {(keywords || benefits) ? (
             <InsightsList 
               keywords={keywords}
               benefits={benefits}
               onRemoveKeyword={handleRemoveKeyword}
               onRemoveBenefit={handleRemoveBenefit}
             />
+          ) : (
+            <div className="empty-state">No insights available yet</div>
           )}
-        </div>
-        <ResumeUpload resumeFile={resumeFile} setResumeFile={setResumeFile} />
-        
-        {/* First button: Get Suggestions */}
-        <SubmitButton handleSubmit={handleGetSuggestions} text="Get Suggestions" />
+        </Accordion>
 
-        {/* If we have suggestions, show them in markdown */}
+        <Accordion title="Resume Upload" isOpen={true}>
+          <ResumeUpload 
+            resumeFile={resumeFile} 
+            setResumeFile={setResumeFile} 
+          />
+        </Accordion>
+
+        <button 
+          className="analyze-button action-button"
+          onClick={handleExtractText}
+          disabled={!resumeFile}
+        >
+          Extract Resume Text
+        </button>
+
+        {resumeText && (
+          <Accordion title="Resume Content">
+            <ResumeText text={resumeText} />
+          </Accordion>
+        )}
+
+        {resumeText && (
+          <button 
+            className="analyze-button action-button"
+            onClick={handleGetSuggestions}
+            disabled={suggestionsLoading || !resumeText || !jobDescription}
+          >
+            {suggestionsLoading ? 'Getting Suggestions...' : 'Get Suggestions'}
+          </button>
+        )}
+
         {suggestions && (
-          <div className="suggestions">
-            <h2>Suggestions</h2>
-            {suggestions}
-
-            {/* Now that we have suggestions, a button to generate optimized resume */}
-            <button onClick={handleGenerateOptimizedResume}>Generate Optimized Resume</button>
-          </div>
+          <Accordion title="Suggestions" isOpen={true}>
+            <div className="suggestions-content">
+              {suggestions.split('\n').map((line, i) => (
+                <p key={i}>{line}</p>
+              ))}
+            </div>
+          </Accordion>
         )}
 
-        {/* If loading, show a loading indicator */}
-        {loading && (
-          <div className="loading">
-            <p>Generating optimized resume, please wait...</p>
-          </div>
+        {suggestions && (
+          <button 
+            className="analyze-button action-button"
+            onClick={handleGenerateResume}
+            disabled={resumeGenerating || !suggestions}
+          >
+            {resumeGenerating ? 'Generating Resume...' : 'Generate Resume PDF'}
+          </button>
         )}
 
-        {/* If we have the optimized resume, show a download button */}
-        {optimizedResume && (
-          <div className="optimized-resume">
-            <h2>Optimized Resume Generated</h2>
-            <p>Your LaTeX-formatted optimized resume is ready.</p>
-            <button onClick={handleDownloadTex}>Download .tex file</button>
-          </div>
+        {pdfUrl && (
+          <Accordion title="Generated Resume" isOpen={true}>
+            <PDFViewer pdfUrl={pdfUrl} />
+          </Accordion>
         )}
       </main>
       <footer className="footer">
-        <p>&copy; 2024 Fumble Labs. All rights reserved.</p>
+        © 2024 Fumble Labs. All rights reserved.
       </footer>
     </div>
   );

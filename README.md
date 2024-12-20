@@ -31,6 +31,13 @@ Start the development server:
 Build for production:
 `npm run build`
 
+## Local Development
+
+1. Create `.env.development.local`:
+```properties
+REACT_APP_API_URL=http://localhost:5001
+```
+
 ## Deployment
 This application is configured for deployment on Vercel.
 
