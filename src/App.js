@@ -18,27 +18,6 @@ function App() {
   const [benefits, setBenefits] = useState('');
   const [benefitsLoading, setBenefitsLoading] = useState(false);
 
-  const handleJobDescriptionChange = async (text) => {
-    setJobDescription(text);
-    if (text.trim()) {
-      setKeywordLoading(true);
-      try {
-        const response = await fetch(`${API_URL}/extract-keywords`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ job_description: text })
-        });
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        const data = await response.json();
-        setKeywords(data.keywords);
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        setKeywordLoading(false);
-      }
-    }
-  };
-
   const handleGetSuggestions = () => {
     if (!jobDescription || !resumeFile) {
       alert('Please fill in all fields');
