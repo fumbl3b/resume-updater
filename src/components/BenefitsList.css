@@ -9,6 +9,27 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  max-height: var(--max-content-height);
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.benefit-pills::-webkit-scrollbar {
+  width: 8px;
+}
+
+.benefit-pills::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.benefit-pills::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.benefit-pills::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 .benefit-pill {
