@@ -7,6 +7,7 @@ import ResumeText from './components/ResumeText';
 import Accordion from './components/Accordion';
 import Logo from './components/Logo';
 import PDFViewer from './components/PDFViewer';
+import LatexPreview from './components/LatexPreview';
 import './App.css';
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -117,7 +118,7 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
-  const handleAnalyzeClick = async () => {
+  const handleAnalyzeJob = async () => {
     if (!jobDescription.trim()) {
       alert('Please enter a job description');
       return;
@@ -125,29 +126,20 @@ function App() {
 
     setKeywordLoading(true);
     setBenefitsLoading(true);
-
     try {
-      // Fetch keywords and benefits in parallel
-      const [keywordsResponse, benefitsResponse] = await Promise.all([
-        fetch(`${API_URL}/extract-keywords`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ job_description: jobDescription })
-        }),
-        fetch(`${API_URL}/extract-benefits`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ job_description: jobDescription })
-        })
-      ]);
+      const response = await fetch(`${API_URL}/analyze-job`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ job_description: jobDescription })
+      });
 
-      const keywordsData = await keywordsResponse.json();
-      const benefitsData = await benefitsResponse.json();
-
-      setKeywords(keywordsData.keywords);
-      setBenefits(benefitsData.keywords); // Assuming same response structure
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const data = await response.json();
+      setKeywords(data.keywords);
+      setBenefits(data.benefits);
     } catch (error) {
       console.error('Error:', error);
+      alert('Error analyzing job description');
     } finally {
       setKeywordLoading(false);
       setBenefitsLoading(false);
@@ -195,7 +187,7 @@ function App() {
     
     setResumeGenerating(true);
     try {
-      const response = await fetch(`${API_URL}/generate-optimized-resume`, {
+      const response = await fetch(`${API_URL}/optimize-resume`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -207,19 +199,10 @@ function App() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
       
-      // Handle LaTeX content
       setLatexContent(data.tex_content);
       
-      // Handle PDF content
-      const pdfBinary = atob(data.pdf_content);
-      const pdfArray = new Uint8Array(pdfBinary.length);
-      for (let i = 0; i < pdfBinary.length; i++) {
-        pdfArray[i] = pdfBinary.charCodeAt(i);
-      }
-      
-      const pdfBlob = new Blob([pdfArray], { type: 'application/pdf' });
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      setPdfUrl(pdfUrl);
+      // PDF generation temporarily disabled per API spec
+      // Will be handled by separate /convert-to-pdf endpoint
     } catch (error) {
       console.error('Error:', error);
       alert('Error generating resume');
@@ -241,24 +224,22 @@ function App() {
         
         <button 
           className="analyze-button action-button" 
-          onClick={handleAnalyzeClick}
-          disabled={!jobDescription.trim()}
+          onClick={handleAnalyzeJob}
+          disabled={!jobDescription.trim() || keywordLoading}
         >
-          Analyze Job Description
+          {keywordLoading ? 'Analyzing...' : 'Analyze Job'}
         </button>
 
-        <Accordion title="Job Insights" isOpen={true}>
-          {(keywords || benefits) ? (
+        {(keywords || benefits) && (
+          <Accordion title="Job Analysis" isOpen={true}>
             <InsightsList 
               keywords={keywords}
               benefits={benefits}
               onRemoveKeyword={handleRemoveKeyword}
               onRemoveBenefit={handleRemoveBenefit}
             />
-          ) : (
-            <div className="empty-state">No insights available yet</div>
-          )}
-        </Accordion>
+          </Accordion>
+        )}
 
         <Accordion title="Resume Upload" isOpen={true}>
           <ResumeUpload 
@@ -309,6 +290,12 @@ function App() {
           >
             {resumeGenerating ? 'Generating Resume...' : 'Generate Resume PDF'}
           </button>
+        )}
+
+        {latexContent && (
+          <Accordion title="LaTeX Output" isOpen={true}>
+            <LatexPreview content={latexContent} />
+          </Accordion>
         )}
 
         {pdfUrl && (
