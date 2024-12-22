@@ -19,7 +19,7 @@ function App() {
   const [jobDescription, setJobDescription] = useState('');
   const [resumeFile, setResumeFile] = useState(null);
   const [suggestions, setSuggestions] = useState('');        // Will hold the markdown response
-  const [optimizedResume, setOptimizedResume] = useState(''); // Will hold the .tex content
+  // const [optimizedResume, setOptimizedResume] = useState(''); // Will hold the .tex content
   const [loading, setLoading] = useState(false);             // For showing a loading indicator
   const [keywords, setKeywords] = useState('');
   const [keywordLoading, setKeywordLoading] = useState(false);
@@ -63,48 +63,48 @@ function App() {
   //   if (!suggestions) {
   //     alert('No suggestions to optimize. Please get suggestions first.');
   //     return;
-    // }
+  //   }
 
-    // We need the original resume again. If we still have it in memory as `resumeFile`, re-read it:
-    const reader = new FileReader();
-    reader.onload = () => {
-      const resumeText = reader.result;
-      setLoading(true);
-      fetch(`${API_URL}/generate-optimized-resume`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          suggestions: suggestions,
-          resume_text: resumeText
-        })
-      })
-      .then(response => {
-        setLoading(false);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Optimized Resume:', data);
-        setOptimizedResume(data.optimized_resume);
-      })
-      .catch(error => {
-        setLoading(false);
-        console.error('Error:', error);
-        alert('Error occurred while processing request');
-      });
-    };
+  //   // We need the original resume again. If we still have it in memory as `resumeFile`, re-read it:
+  //   const reader = new FileReader();
+  //   reader.onload = () => {
+  //     const resumeText = reader.result;
+  //     setLoading(true);
+  //     fetch(`${API_URL}/generate-optimized-resume`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({
+  //         suggestions: suggestions,
+  //         resume_text: resumeText
+  //       })
+  //     })
+  //     .then(response => {
+  //       setLoading(false);
+  //       if (!response.ok) {
+  //         throw new Error(`HTTP error! Status: ${response.status}`);
+  //       }
+  //       return response.json();
+  //     })
+  //     .then(data => {
+  //       console.log('Optimized Resume:', data);
+  //       setOptimizedResume(data.optimized_resume);
+  //     })
+  //     .catch(error => {
+  //       setLoading(false);
+  //       console.error('Error:', error);
+  //       alert('Error occurred while processing request');
+  //     });
+  //   };
 
-    reader.onerror = (error) => {
-      console.error('Error reading file:', error);
-      alert('Could not read the resume file.');
-    };
+  //   reader.onerror = (error) => {
+  //     console.error('Error reading file:', error);
+  //     alert('Could not read the resume file.');
+  //   };
 
-    reader.readAsText(resumeFile);
-  };
+  //   reader.readAsText(resumeFile);
+  // };
 
   // const handleDownloadTex = () => {
   //   if (!optimizedResume) return;
