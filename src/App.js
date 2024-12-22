@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import JobDescription from './components/JobDescription';
 import ResumeUpload from './components/ResumeUpload';
-import SubmitButton from './components/SubmitButton';
 import InsightsList from './components/InsightsList';
 import ResumeText from './components/ResumeText';
 import Accordion from './components/Accordion';
