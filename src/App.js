@@ -8,6 +8,7 @@ import Accordion from './components/Accordion';
 import Logo from './components/Logo';
 import PDFViewer from './components/PDFViewer';
 import LatexPreview from './components/LatexPreview';
+import LoadingSpinner from './components/shared/LoadingSpinner';
 import './App.css';
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -221,16 +222,23 @@ function App() {
             onChange={setJobDescription} 
           />
         </Accordion>
-        
+
         <button 
           className="analyze-button action-button" 
           onClick={handleAnalyzeJob}
-          disabled={!jobDescription.trim() || keywordLoading}
+          disabled={!jobDescription.trim() || keywordLoading || benefitsLoading}
         >
-          {keywordLoading ? 'Analyzing...' : 'Analyze Job'}
+          {(keywordLoading || benefitsLoading) ? 'Analyzing...' : 'Analyze Job'}
         </button>
 
-        {(keywords || benefits) && (
+        {(keywordLoading || benefitsLoading) && (
+          <div className="loading-container">
+            <LoadingSpinner />
+            <p className="loading-text">Analyzing job description...</p>
+          </div>
+        )}
+        
+        {!keywordLoading && !benefitsLoading && (keywords || benefits) && (
           <Accordion title="Job Analysis" isOpen={true}>
             <InsightsList 
               keywords={keywords}
@@ -240,6 +248,8 @@ function App() {
             />
           </Accordion>
         )}
+
+        {loading && <LoadingSpinner />}
 
         <Accordion title="Resume Upload" isOpen={true}>
           <ResumeUpload 
