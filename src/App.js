@@ -5,7 +5,7 @@ import InsightsList from './components/InsightsList';
 import ResumeText from './components/ResumeText';
 import Accordion from './components/Accordion';
 import Logo from './components/Logo';
-import PDFViewer from './components/PDFViewer';
+// import PDFViewer from './components/PDFViewer';
 import LatexPreview from './components/LatexPreview';
 import LoadingSpinner from './components/shared/LoadingSpinner';
 import './App.css';
@@ -20,7 +20,8 @@ function App() {
   const [resumeFile, setResumeFile] = useState(null);
   const [suggestions, setSuggestions] = useState('');        // Will hold the markdown response
   // const [optimizedResume, setOptimizedResume] = useState(''); // Will hold the .tex content
-  const [loading, setLoading] = useState(false);             // For showing a loading indicator
+  // const [loading, setLoading] = useState(false);             // For showing a loading indicator
+  const loading = false
   const [keywords, setKeywords] = useState('');
   const [keywordLoading, setKeywordLoading] = useState(false);
   const [benefits, setBenefits] = useState('');
