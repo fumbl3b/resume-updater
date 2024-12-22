@@ -28,7 +28,7 @@ function App() {
   const [resumeText, setResumeText] = useState('');
   const [latexContent, setLatexContent] = useState('');
   const [resumeGenerating, setResumeGenerating] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState(null);
+  // const [pdfUrl, setPdfUrl] = useState(null);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
 
   const handleGetSuggestions = async () => {
@@ -59,11 +59,11 @@ function App() {
     }
   };
 
-  const handleGenerateOptimizedResume = () => {
-    if (!suggestions) {
-      alert('No suggestions to optimize. Please get suggestions first.');
-      return;
-    }
+  // const handleGenerateOptimizedResume = () => {
+  //   if (!suggestions) {
+  //     alert('No suggestions to optimize. Please get suggestions first.');
+  //     return;
+    // }
 
     // We need the original resume again. If we still have it in memory as `resumeFile`, re-read it:
     const reader = new FileReader();
@@ -106,17 +106,17 @@ function App() {
     reader.readAsText(resumeFile);
   };
 
-  const handleDownloadTex = () => {
-    if (!optimizedResume) return;
-    const blob = new Blob([optimizedResume], { type: 'application/x-tex' });
-    const url = URL.createObjectURL(blob);
+  // const handleDownloadTex = () => {
+  //   if (!optimizedResume) return;
+  //   const blob = new Blob([optimizedResume], { type: 'application/x-tex' });
+  //   const url = URL.createObjectURL(blob);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'optimized_resume.tex';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  //   const a = document.createElement('a');
+  //   a.href = url;
+  //   a.download = 'optimized_resume.tex';
+  //   a.click();
+  //   URL.revokeObjectURL(url);
+  // };
 
   const handleAnalyzeJob = async () => {
     if (!jobDescription.trim()) {
@@ -307,11 +307,11 @@ function App() {
           </Accordion>
         )}
 
-        {pdfUrl && (
+        {/* {pdfUrl && (
           <Accordion title="Generated Resume" isOpen={true}>
             <PDFViewer pdfUrl={pdfUrl} />
           </Accordion>
-        )}
+        )} */}
       </main>
       <footer className="footer">
         © 2024 Fumble Labs. All rights reserved.
