@@ -29,7 +29,6 @@ function App() {
   const [benefits, setBenefits] = useState('');
   const [benefitsLoading, setBenefitsLoading] = useState(false);
   const [resumeText, setResumeText] = useState('');
-  const [latexContent, setLatexContent] = useState('');
   const [resumeGenerating, setResumeGenerating] = useState(false);
   // const [pdfUrl, setPdfUrl] = useState(null);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
@@ -320,9 +319,9 @@ function App() {
           </button>
         )}
 
-        {latexContent && (
+        {texContent && (
           <Accordion title="LaTeX Output" isOpen={true}>
-            <LatexPreview content={latexContent} />
+            <LatexPreview content={texContent} />
           </Accordion>
         )}
 
