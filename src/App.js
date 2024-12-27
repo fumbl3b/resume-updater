@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import JobDescription from './components/JobDescription';
-import ResumeUpload from './components/ResumeUpload';
-import InsightsList from './components/InsightsList';
-import ResumeText from './components/ResumeText';
-import Accordion from './components/Accordion';
-import Logo from './components/Logo';
-// import PDFViewer from './components/PDFViewer';
+import JobDescription from './components/features/job/JobDescription';
+import ResumeUpload from './components/features/resume/ResumeUpload';
+import InsightsList from './components/features/insight/InsightsList';
 import LatexPreview from './components/LatexPreview';
+import ResumeText from './components/features/resume/ResumeText/ResumeText';
+import Accordion from './components/layout/Accordion';
+import Logo from './components/layout/Logo/Logo';
 import LoadingSpinner from './components/shared/LoadingSpinner';
+import { extractLatexCode } from './utils/latexParser';
+import DownloadLinks from './components/features/resume/DownloadLinks';
+import './styles/variables.css';
 import './App.css';
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -27,10 +29,11 @@ function App() {
   const [benefits, setBenefits] = useState('');
   const [benefitsLoading, setBenefitsLoading] = useState(false);
   const [resumeText, setResumeText] = useState('');
-  const [latexContent, setLatexContent] = useState('');
   const [resumeGenerating, setResumeGenerating] = useState(false);
   // const [pdfUrl, setPdfUrl] = useState(null);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const [texContent, setTexContent] = useState('');
+  const [pdfContent, setPdfContent] = useState('');
 
   const handleGetSuggestions = async () => {
     if (!resumeText || !jobDescription) {
@@ -188,7 +191,8 @@ function App() {
     
     setResumeGenerating(true);
     try {
-      const response = await fetch(`${API_URL}/optimize-resume`, {
+      // First get optimized resume
+      const optimizeResponse = await fetch(`${API_URL}/optimize-resume`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -197,13 +201,26 @@ function App() {
         })
       });
       
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      const optimizeData = await optimizeResponse.json();
+      if (!optimizeResponse.ok) throw new Error(optimizeData.error);
       
-      setLatexContent(data.tex_content);
+      // Extract LaTeX code from response
+      const cleanLatex = extractLatexCode(optimizeData.tex_content);
       
-      // PDF generation temporarily disabled per API spec
-      // Will be handled by separate /convert-to-pdf endpoint
+      // Convert LaTeX to PDF
+      const convertResponse = await fetch(`${API_URL}/convert-latex`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          latex_content: cleanLatex
+        })
+      });
+      
+      const convertData = await convertResponse.json();
+      if (!convertResponse.ok) throw new Error(convertData.error);
+      
+      setTexContent(convertData.tex_content);
+      setPdfContent(convertData.pdf_content);
     } catch (error) {
       console.error('Error:', error);
       alert('Error generating resume');
@@ -302,9 +319,18 @@ function App() {
           </button>
         )}
 
-        {latexContent && (
+        {texContent && (
           <Accordion title="LaTeX Output" isOpen={true}>
-            <LatexPreview content={latexContent} />
+            <LatexPreview content={texContent} />
+          </Accordion>
+        )}
+
+        {(texContent || pdfContent) && (
+          <Accordion title="Downloads" isOpen={true}>
+            <DownloadLinks 
+              texContent={texContent}
+              pdfContent={pdfContent}
+            />
           </Accordion>
         )}
 
