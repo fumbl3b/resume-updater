@@ -6,6 +6,7 @@ import LatexPreview from './components/LatexPreview';
 import ResumeText from './components/features/resume/ResumeText/ResumeText';
 import Accordion from './components/layout/Accordion';
 import Logo from './components/layout/Logo/Logo';
+import Hero from './components/features/landing/Hero/Hero';
 import LoadingSpinner from './components/shared/LoadingSpinner';
 import { extractLatexCode } from './utils/latexParser';
 import DownloadLinks from './components/features/resume/DownloadLinks';
@@ -18,6 +19,7 @@ if (!API_URL) {
 }
 
 function App() {
+  const [showLanding, setShowLanding] = useState(true);
   const [jobDescription, setJobDescription] = useState('');
   const [resumeFile, setResumeFile] = useState(null);
   const [suggestions, setSuggestions] = useState('');        // Will hold the markdown response
@@ -35,6 +37,10 @@ function App() {
   const [texContent, setTexContent] = useState('');
   const [pdfContent, setPdfContent] = useState('');
 
+  const handleGetStarted = () => {
+    setShowLanding(false);
+  };
+
   const handleGetSuggestions = async () => {
     if (!resumeText || !jobDescription) {
       alert('Please provide both resume and job description');
@@ -43,7 +49,7 @@ function App() {
 
     setSuggestionsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/suggest-improvements`, {
+      const response = await fetch(`${API_URL}/resume/suggest-improvements`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -131,7 +137,7 @@ function App() {
     setKeywordLoading(true);
     setBenefitsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/analyze-job`, {
+      const response = await fetch(`${API_URL}/analyze/job`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ job_description: jobDescription })
@@ -169,7 +175,7 @@ function App() {
     formData.append('file', resumeFile);
 
     try {
-      const response = await fetch(`${API_URL}/extract-resume-text`, {
+      const response = await fetch(`${API_URL}/resume/extract-text`, {
         method: 'POST',
         body: formData
       });
@@ -192,7 +198,7 @@ function App() {
     setResumeGenerating(true);
     try {
       // First get optimized resume
-      const optimizeResponse = await fetch(`${API_URL}/optimize-resume`, {
+      const optimizeResponse = await fetch(`${API_URL}/resume/apply-improvements`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -208,7 +214,7 @@ function App() {
       const cleanLatex = extractLatexCode(optimizeData.tex_content);
       
       // Convert LaTeX to PDF
-      const convertResponse = await fetch(`${API_URL}/convert-latex`, {
+      const convertResponse = await fetch(`${API_URL}/convert/latex`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -228,6 +234,10 @@ function App() {
       setResumeGenerating(false);
     }
   };
+
+  if (showLanding) {
+    return <Hero onGetStarted={handleGetStarted} />;
+  }
 
   return (
     <div className="app">
