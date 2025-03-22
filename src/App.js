@@ -613,16 +613,18 @@ function App() {
     <div className="min-h-screen p-8 bg-gradient-to-br from-primary-dark via-primary to-primary-light">
       <Logo />
       
-      {/* Dev Mode Button - always visible for now */}
-      <button
-        onClick={toggleDevPanel}
-        className="fixed top-4 right-4 z-50 bg-gray-800 text-white px-2 py-1 text-xs rounded-md opacity-50 hover:opacity-100"
-      >
-        {showDevPanel ? 'Hide' : 'Show'} Dev Tools
-      </button>
+      {/* Dev Mode Button - only visible in dev mode */}
+      {IS_DEV_MODE && (
+        <button
+          onClick={toggleDevPanel}
+          className="fixed top-4 right-4 z-50 bg-gray-800 text-white px-2 py-1 text-xs rounded-md opacity-50 hover:opacity-100"
+        >
+          {showDevPanel ? 'Hide' : 'Show'} Dev Tools
+        </button>
+      )}
       
-      {/* Dev Panel */}
-      {showDevPanel && (
+      {/* Dev Panel - only in dev mode */}
+      {IS_DEV_MODE && showDevPanel && (
         <div className="fixed right-4 top-12 w-80 bg-gray-900 text-white p-4 rounded-lg shadow-xl z-50 text-sm">
           <h3 className="text-lg font-bold mb-2 flex justify-between">
             Development Tools
@@ -735,20 +737,22 @@ function App() {
         </div>
       )}
       
-      {/* Debug Info */}
-      <div className="fixed bottom-4 left-4 p-2 bg-gray-800 text-white text-xs rounded opacity-70 hover:opacity-100 z-50">
-        ENV: {process.env.NODE_ENV} | 
-        DEV: {process.env.REACT_APP_DEV_MODE || 'Not set'} | 
-        LOG: {process.env.REACT_APP_LOG_LEVEL || 'Not set'} |
-        <button 
-          onClick={() => console.log('App state:', { 
-            currentStep, jobDescription, keywords, benefits, resumeText, suggestions 
-          })}
-          className="ml-2 underline"
-        >
-          Log State
-        </button>
-      </div>
+      {/* Debug Info - only in dev mode */}
+      {IS_DEV_MODE && (
+        <div className="fixed bottom-4 left-4 p-2 bg-gray-800 text-white text-xs rounded opacity-70 hover:opacity-100 z-50">
+          ENV: {process.env.NODE_ENV} | 
+          DEV: {process.env.REACT_APP_DEV_MODE || 'Not set'} | 
+          LOG: {process.env.REACT_APP_LOG_LEVEL || 'Not set'} |
+          <button 
+            onClick={() => console.log('App state:', { 
+              currentStep, jobDescription, keywords, benefits, resumeText, suggestions 
+            })}
+            className="ml-2 underline"
+          >
+            Log State
+          </button>
+        </div>
+      )}
       
       <main className="max-w-4xl mx-auto space-y-6 bg-white/95 backdrop-blur-md rounded-lg p-8 shadow-lg">
         {/* Step 1: Job Description */}

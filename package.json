@@ -18,7 +18,8 @@
     "start": "DISABLE_ESLINT_PLUGIN=true react-scripts start",
     "dev": "DISABLE_ESLINT_PLUGIN=true REACT_APP_DEV_MODE=true REACT_APP_LOG_LEVEL=debug react-scripts start",
     "debug": "DISABLE_ESLINT_PLUGIN=true FORCE_DEV_MODE=true REACT_APP_DEV_MODE=true REACT_APP_LOG_LEVEL=debug react-scripts start",
-    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
+    "build": "DISABLE_ESLINT_PLUGIN=true REACT_APP_DEV_MODE=false NODE_ENV=production react-scripts build",
+    "build:dev": "DISABLE_ESLINT_PLUGIN=true REACT_APP_DEV_MODE=true react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

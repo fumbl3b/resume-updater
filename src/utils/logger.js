@@ -1,20 +1,24 @@
-// Logger utility for development mode
+// Logger utility that respects environment settings
 class Logger {
   constructor() {
-    // Force dev mode to be true for debugging purposes
-    this.isDevMode = true; // Always enable for now
-    this.logLevel = 'debug'; // Always use debug level for now
+    // Use environment variables for configuration
+    this.isDevMode = process.env.REACT_APP_DEV_MODE === 'true';
+    this.logLevel = process.env.REACT_APP_LOG_LEVEL || 'info';
+    this.isProduction = process.env.NODE_ENV === 'production';
     
-    // Original configuration (commented out for now)
-    // this.isDevMode = process.env.REACT_APP_DEV_MODE === 'true';
-    // this.logLevel = process.env.REACT_APP_LOG_LEVEL || 'info';
+    // In production, only allow error logs by default
+    if (this.isProduction && !this.isDevMode) {
+      this.logLevel = 'error';
+    }
     
-    console.log('🔧 Logger initialized with:', {
-      isDevMode: this.isDevMode,
-      logLevel: this.logLevel,
-      processEnvDEV: process.env.REACT_APP_DEV_MODE,
-      processEnvLOG: process.env.REACT_APP_LOG_LEVEL
-    });
+    // Only log initialization in dev mode
+    if (this.isDevMode) {
+      console.log('🔧 Logger initialized with:', {
+        isDevMode: this.isDevMode,
+        logLevel: this.logLevel,
+        isProduction: this.isProduction
+      });
+    }
     
     this.levels = {
       debug: 0,
@@ -26,7 +30,13 @@ class Logger {
 
   // Check if current log level should be shown
   shouldLog(level) {
-    return this.isDevMode && this.levels[level] >= this.levels[this.logLevel];
+    // In production without dev mode, only show errors
+    if (this.isProduction && !this.isDevMode) {
+      return level === 'error';
+    }
+    
+    // In dev mode or if explicitly enabled in production, respect log level
+    return this.levels[level] >= this.levels[this.logLevel];
   }
 
   // Format message with timestamp and extra data
@@ -74,13 +84,15 @@ class Logger {
 
   // Log HTTP requests
   request(method, url, data) {
-    // Always log requests with detailed info
-    console.group(`%c🌐 API Request: ${method} ${url}`, 'color: #6610f2; font-weight: bold');
-    console.log('Headers:', { 'Content-Type': 'application/json' });
-    console.log('Payload:', data);
-    console.groupEnd();
+    // Only log detailed request info in dev mode
+    if (this.isDevMode) {
+      console.group(`%c🌐 API Request: ${method} ${url}`, 'color: #6610f2; font-weight: bold');
+      console.log('Headers:', { 'Content-Type': 'application/json' });
+      console.log('Payload:', data);
+      console.groupEnd();
+    }
     
-    // Also log in standard format if debug is enabled
+    // Log in standard format if debug is enabled
     if (this.shouldLog('debug')) {
       const requestInfo = {
         method,
