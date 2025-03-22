@@ -1,9 +1,8 @@
 import React from 'react';
-import './LoadingSpinner.css';
 
 const LoadingSpinner = () => (
-  <div className="loading-spinner">
-    <div className="spinner"></div>
+  <div className="flex justify-center items-center p-4">
+    <div className="w-10 h-10 border-4 border-primary-light border-t-primary rounded-full animate-spin" />
   </div>
 );
 

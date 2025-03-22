@@ -1,5 +1,4 @@
 import React from 'react';
-import './LatexPreview.css';
 
 const LatexPreview = ({ content }) => {
   const handleCopy = () => {

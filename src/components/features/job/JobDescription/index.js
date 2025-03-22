@@ -1,19 +1,16 @@
 import React from 'react';
 import './JobDescription.css';
 
-const JobDescription = ({ value, onChange }) => {
-  return (
-    <div className="job-description">
-      <label>Job Description:</label>
-      <textarea
-        className="editable-content"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Paste the job description here..."
-        aria-label="Job Description Input"
-      />
-    </div>
-  );
-};
+const JobDescription = ({ value, onChange }) => (
+  <div className="flex flex-col gap-4">
+    <label>Job Description:</label>
+    <textarea
+      className="min-h-[200px] max-h-[300px] w-full p-4 border border-gray-200 rounded-lg outline-none bg-white resize-y"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder="Paste the job description here..."
+    />
+  </div>
+);
 
 export default JobDescription;

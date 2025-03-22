@@ -1,15 +1,13 @@
 import React from 'react';
-import './ResumeText.css';
 
 const ResumeText = ({ text }) => {
   if (!text) return null;
   
   return (
     <div className="resume-text">
-      <h3>Resume Content</h3>
-      <div className="text-content">
+      <pre className="whitespace-pre-wrap font-sans text-gray-800 leading-relaxed">
         {text}
-      </div>
+      </pre>
     </div>
   );
 };

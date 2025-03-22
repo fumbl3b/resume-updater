@@ -38,6 +38,52 @@ Build for production:
 REACT_APP_API_URL=http://localhost:5001
 ```
 
+### Development Mode
+
+The application includes a development mode with enhanced logging and a dev tools panel.
+
+**To run in development mode:**
+
+```bash
+# Using npm script
+npm run dev
+
+# Or with environment variables directly
+REACT_APP_DEV_MODE=true REACT_APP_LOG_LEVEL=debug npm start
+```
+
+### Development Mode Features
+
+1. **Dev Tools Panel:** Access by clicking the "Show Dev Tools" button in the top-right corner
+2. **Detailed Logging:** Check the browser console for detailed logs
+3. **Application State Monitoring:** See current state, API calls, and performance metrics
+4. **Testing Tools:** Simulate errors, clear local storage, etc.
+
+### Log Levels
+
+You can adjust the logging level in the Dev Tools panel or by setting the environment variable:
+
+- `debug` - All logs (detailed, verbose)
+- `info` - Informational messages, warnings and errors
+- `warn` - Only warnings and errors
+- `error` - Only errors
+
+Example:
+```bash
+REACT_APP_LOG_LEVEL=debug npm start
+```
+
+### Full Development Environment Variables
+
+Create a `.env.development` file with the following variables:
+
+```
+REACT_APP_API_URL=http://localhost:8000
+REACT_APP_DEV_MODE=true
+REACT_APP_LOG_LEVEL=debug
+REACT_APP_VERSION=0.1.0-dev
+```
+
 ## Deployment
 This application is configured for deployment on Vercel.
 

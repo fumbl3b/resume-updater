@@ -1,35 +1,24 @@
 // src/components/ResumeUpload.js
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import './ResumeUpload.css';
 
 const ResumeUpload = ({ resumeFile, setResumeFile }) => {
-  const onDrop = (acceptedFiles) => {
-    if (acceptedFiles.length === 0) return;
+  const onDrop = useCallback((acceptedFiles) => {
     setResumeFile(acceptedFiles[0]);
-  };
+  }, [setResumeFile]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: '.pdf, .doc, .docx, .tex',
-    multiple: false,
-  });
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
-    <div className="resume-upload">
-      <label>Upload Your Resume:</label>
-      <div {...getRootProps()} className={`dropzone ${isDragActive ? 'active' : ''}`}>
-        <input {...getInputProps()} />
-        {isDragActive ? (
-          <p>Drop the resume here...</p>
-        ) : (
-          <p>Drag & drop your resume here, or click to select a file</p>
-        )}
-      </div>
-      {resumeFile && (
-        <div className="file-info">
-          <strong>Selected File:</strong> {resumeFile.name}
-        </div>
+    <div 
+      {...getRootProps()} 
+      className="min-h-[200px] border-2 border-dashed border-gray-300 rounded-lg p-8 flex items-center justify-center text-center cursor-pointer hover:border-primary transition-colors"
+    >
+      <input {...getInputProps()} />
+      {resumeFile ? (
+        <p>Selected file: {resumeFile.name}</p>
+      ) : (
+        <p>Drag 'n' drop a resume file here, or click to select one</p>
       )}
     </div>
   );
