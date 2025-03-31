@@ -1,13 +1,26 @@
 /* src/App.css */
 
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono&display=swap');
+
 :root {
-  --primary-color: #1976d2;
-  --primary-light: #e3f2fd;
+  --primary-color: #FFD966;
+  --primary-light: #FFF5D6;
+  --primary-dark: #FFB000;
+  --secondary-color: #FF6B35;
+  --accent-color: #A4D06D;
   --shadow: 0 2px 4px rgba(0,0,0,0.1);
   --border-radius: 8px;
   --spacing: 20px;
   --max-content-height: 300px;
   --min-component-height: 200px;
+  
+  /* New retro styling variables */
+  --glow-color: #FFD966;
+  --secondary-glow: #FF6B35;
+  --accent-glow: #A4D06D;
+  --dark-bg: #000000;
+  --text-shadow: 0 0 5px var(--glow-color), 0 0 10px var(--glow-color);
+  --text-shadow-dim: 0 0 2px var(--glow-color);
 }
 
 .app {
@@ -330,7 +343,778 @@ iframe:not([data]) + .pdf-fallback {
   transform: translateY(0);
 }
 
+/* Step Navigation and Responsive Design */
+@media (max-width: 640px) {
+  .progress-steps {
+    overflow-x: auto;
+    padding-bottom: 15px;
+  }
+  
+  .progress-steps .step-indicator {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 12px !important;
+  }
+  
+  .progress-steps .step-name {
+    display: none;
+  }
+}
+.pulse-animation {
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 0 rgba(25, 118, 210, 0.4);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(25, 118, 210, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(25, 118, 210, 0);
+  }
+}
+
+.step-indicator {
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.step-indicator:hover {
+  transform: translateY(-2px) scale(1.1);
+}
+
+/* Step button tooltip */
+.step-indicator[title]:hover::before {
+  content: attr(title);
+  position: absolute;
+  bottom: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 10px;
+  background-color: rgba(0,0,0,0.8);
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 20;
+  opacity: 0.9;
+}
+
+.step-indicator[title]:hover::after {
+  content: "";
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: rgba(0,0,0,0.8);
+  z-index: 20;
+}
+
+.step-indicator.disabled {
+  pointer-events: none;
+}
+
+.step-indicator.completed:hover::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: white;
+}
+
+.step-indicator.shake {
+  animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* Retro landing page styling */
+.retro-body {
+  margin: 0;
+  padding: 0;
+  font-family: 'VT323', 'Space Mono', monospace;
+  background-color: var(--dark-bg);
+  color: var(--glow-color);
+  line-height: 1.5;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* CRT screen effect */
+.retro-body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.3;
+}
+
+/* Subtle screen flicker animation */
+@keyframes flicker {
+  0% { opacity: 0.98; }
+  2% { opacity: 0.93; }
+  4% { opacity: 0.97; }
+  19% { opacity: 1; }
+  21% { opacity: 0.98; }
+  34% { opacity: 0.97; }
+  50% { opacity: 0.99; }
+  60% { opacity: 0.95; }
+  68% { opacity: 1; }
+  75% { opacity: 0.99; }
+  88% { opacity: 0.98; }
+  100% { opacity: 0.93; }
+}
+
+.retro-body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at center,
+    transparent 60%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+  pointer-events: none;
+  z-index: 999;
+  animation: flicker 8s infinite;
+}
+
+.retro-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.retro-header {
+  padding: 20px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 217, 102, 0.3);
+}
+
+.retro-logo {
+  display: flex;
+  align-items: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--glow-color);
+  text-shadow: var(--text-shadow);
+  letter-spacing: 2px;
+}
+
+.retro-logo-img {
+  margin-right: 10px;
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+.retro-logo-img::before {
+  content: ">";
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 32px;
+  color: var(--glow-color);
+  text-shadow: var(--text-shadow);
+}
+
+.retro-nav ul {
+  display: flex;
+  list-style: none;
+  gap: 30px;
+  margin: 0;
+  padding: 0;
+}
+
+.retro-nav a {
+  color: var(--glow-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s;
+  text-shadow: var(--text-shadow-dim);
+  font-size: 20px;
+}
+
+.retro-nav a:hover {
+  color: var(--accent-glow);
+  text-shadow: 0 0 10px var(--accent-glow);
+}
+
+.retro-hero {
+  display: flex;
+  align-items: center;
+  padding: 80px 0;
+  gap: 60px;
+  min-height: 70vh;
+  position: relative;
+}
+
+.retro-hero-content {
+  flex: 1;
+}
+
+.retro-hero h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+  color: var(--glow-color);
+  text-shadow: var(--text-shadow);
+  letter-spacing: 2px;
+}
+
+.retro-hero p {
+  font-size: 22px;
+  margin-bottom: 30px;
+  line-height: 1.6;
+  color: rgba(255, 217, 102, 0.8);
+  max-width: 600px;
+}
+
+.retro-blink {
+  animation: blink 1s step-end infinite;
+}
+
+.retro-terminal-text {
+  font-family: 'Space Mono', monospace;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border: 1px solid var(--glow-color);
+  border-radius: 6px;
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.retro-terminal-text::before {
+  content: "> AI RESUME OPTIMIZER v1.0";
+  display: block;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: var(--accent-glow);
+}
+
+.retro-cta-button {
+  display: inline-block;
+  background-color: transparent;
+  color: var(--secondary-glow);
+  padding: 15px 40px;
+  border: 3px solid var(--secondary-glow);
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: all 0.3s;
+  font-size: 24px;
+  text-shadow: 0 0 5px var(--secondary-glow);
+  box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+  cursor: pointer;
+}
+
+.retro-cta-button:hover {
+  background-color: rgba(255, 107, 53, 0.2);
+  box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+  text-shadow: 0 0 8px var(--secondary-glow);
+}
+
+.retro-hero-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.retro-hero-image img {
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(255, 217, 102, 0.3);
+  max-width: 100%;
+}
+
+.retro-hero-image::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 217, 102, 0.05),
+    rgba(255, 217, 102, 0.01)
+  );
+  pointer-events: none;
+}
+
+.retro-section-title {
+  text-align: center;
+  font-size: 36px;
+  color: var(--glow-color);
+  margin-bottom: 60px;
+  text-shadow: var(--text-shadow);
+  letter-spacing: 2px;
+  position: relative;
+}
+
+.retro-section-title::after {
+  content: "";
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background-color: var(--glow-color);
+  box-shadow: 0 0 10px var(--glow-color);
+}
+
+.retro-process-section {
+  padding: 80px 0;
+  position: relative;
+}
+
+.retro-process-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 60px;
+  position: relative;
+}
+
+.retro-process-steps::before {
+  content: "";
+  position: absolute;
+  top: 30px;
+  left: 80px;
+  right: 80px;
+  height: 3px;
+  background-color: rgba(255, 217, 102, 0.3);
+  z-index: 0;
+}
+
+.retro-process-step {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.retro-step-number {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--dark-bg);
+  border: 3px solid var(--glow-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 30px;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 0 15px var(--glow-color);
+  position: relative;
+}
+
+.retro-step-title {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: var(--glow-color);
+  text-shadow: var(--text-shadow-dim);
+}
+
+.retro-step-desc {
+  font-size: 18px;
+  color: rgba(255, 217, 102, 0.8);
+}
+
+.retro-features-section {
+  padding: 80px 0;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.retro-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.retro-feature-card {
+  border: 1px solid var(--glow-color);
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 30px;
+  border-radius: 6px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.retro-feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 0 20px rgba(255, 217, 102, 0.2);
+}
+
+.retro-feature-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background-color: var(--glow-color);
+  box-shadow: 0 0 10px var(--glow-color);
+}
+
+.retro-feature-icon {
+  font-size: 36px;
+  margin-bottom: 20px;
+  color: var(--accent-glow);
+  text-shadow: 0 0 5px var(--accent-glow);
+}
+
+.retro-feature-card h3 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: var(--glow-color);
+  text-shadow: var(--text-shadow-dim);
+}
+
+.retro-testimonials {
+  padding: 80px 0;
+  position: relative;
+}
+
+.retro-testimonial-card {
+  border: 1px solid rgba(255, 217, 102, 0.3);
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 30px;
+  border-radius: 6px;
+  margin-top: 40px;
+  position: relative;
+}
+
+.retro-testimonial-card::before {
+  content: ">";
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  color: var(--accent-glow);
+  opacity: 0.5;
+}
+
+.retro-quote {
+  font-size: 20px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  padding-left: 30px;
+  font-style: italic;
+  color: rgba(255, 217, 102, 0.9);
+}
+
+.retro-author {
+  text-align: right;
+  font-size: 18px;
+  color: var(--glow-color);
+}
+
+.retro-author span {
+  color: var(--accent-glow);
+  display: block;
+  font-size: 16px;
+  margin-top: 5px;
+}
+
+.retro-cta-section {
+  padding: 100px 0;
+  text-align: center;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.retro-cta-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.retro-cta-content h2 {
+  font-size: 42px;
+  margin-bottom: 30px;
+  color: var(--glow-color);
+  text-shadow: var(--text-shadow);
+}
+
+.retro-cta-content p {
+  font-size: 22px;
+  margin-bottom: 40px;
+  color: rgba(255, 217, 102, 0.8);
+}
+
+.retro-footer {
+  padding: 60px 0 30px;
+  border-top: 1px solid rgba(255, 217, 102, 0.3);
+  position: relative;
+}
+
+.retro-footer-content {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+.retro-footer-column {
+  flex: 1;
+  padding: 0 20px;
+}
+
+.retro-footer-column h3 {
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: var(--glow-color);
+  text-shadow: var(--text-shadow-dim);
+}
+
+.retro-footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.retro-footer-links li {
+  margin-bottom: 10px;
+}
+
+.retro-footer-links a {
+  color: rgba(255, 217, 102, 0.8);
+  text-decoration: none;
+  transition: all 0.3s;
+  font-size: 16px;
+}
+
+.retro-footer-links a:hover {
+  color: var(--glow-color);
+  text-shadow: var(--text-shadow-dim);
+}
+
+.retro-copyright {
+  text-align: center;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 217, 102, 0.2);
+  color: rgba(255, 217, 102, 0.6);
+  font-size: 16px;
+}
+
+/* Cursor effect */
+.retro-typing::after {
+  content: "_";
+  display: inline-block;
+  animation: blink 1s step-end infinite;
+}
+
+/* Pulsing glow effect for main CTA buttons */
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 107, 53, 0.8), 0 0 10px rgba(255, 217, 102, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+  }
+}
+
+.retro-main-cta {
+  animation: pulse-glow 2s infinite;
+}
+
+@media (max-width: 768px) {
+  .retro-hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 40px 0;
+  }
+  
+  .retro-process-steps {
+    flex-direction: column;
+    gap: 60px;
+  }
+  
+  .retro-process-steps::before {
+    left: 50%;
+    width: 3px;
+    height: 80%;
+    top: 60px;
+    right: auto;
+    transform: translateX(-50%);
+  }
+  
+  .retro-features-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .retro-footer-content {
+    flex-direction: column;
+    gap: 40px;
+  }
+}
+
+/* Retro styling for all application pages */
+.retro-body h1, 
+.retro-body h2, 
+.retro-body h3, 
+.retro-body h4, 
+.retro-body h5, 
+.retro-body h6 {
+  color: var(--glow-color);
+  text-shadow: var(--text-shadow);
+  font-family: 'VT323', 'Space Mono', monospace;
+  letter-spacing: 1px;
+}
+
+.retro-body p,
+.retro-body li,
+.retro-body label,
+.retro-body input,
+.retro-body textarea {
+  color: rgba(255, 217, 102, 0.9);
+  font-family: 'Space Mono', monospace;
+}
+
+/* Retro style for main headings */
+.retro-body main h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  position: relative;
+  display: inline-block;
+}
+
+.retro-body main h2::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--glow-color);
+  box-shadow: 0 0 10px var(--glow-color);
+}
+
+/* Retro style for buttons */
+.retro-body button:not(.retro-cta-button) {
+  background-color: transparent;
+  color: var(--secondary-glow);
+  border: 2px solid var(--secondary-glow);
+  border-radius: 6px;
+  font-weight: bold;
+  padding: 10px 20px;
+  transition: all 0.3s;
+  font-size: 16px;
+  text-shadow: 0 0 3px var(--secondary-glow);
+  box-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
+  font-family: 'VT323', 'Space Mono', monospace;
+}
+
+.retro-body button:not(.retro-cta-button):hover {
+  background-color: rgba(255, 107, 53, 0.1);
+  box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+}
+
+.retro-body button:not(.retro-cta-button):disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Retro style for form inputs */
+.retro-body input,
+.retro-body textarea,
+.retro-body select {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--glow-color);
+  color: var(--glow-color);
+  padding: 10px;
+  font-family: 'Space Mono', monospace;
+  transition: all 0.3s;
+}
+
+.retro-body input:focus,
+.retro-body textarea:focus,
+.retro-body select:focus {
+  outline: none;
+  box-shadow: 0 0 10px var(--glow-color);
+  border-color: var(--glow-color);
+}
+
+/* Retro style for cards and containers */
+.retro-body .card,
+.retro-body .container {
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--glow-color);
+  border-radius: 6px;
+  padding: 20px;
+  transition: all 0.3s;
+}
+
+.retro-body .card:hover {
+  box-shadow: 0 0 15px rgba(255, 217, 102, 0.2);
+}
+
+/* Retro style for progress indicators */
+.retro-body .progress-steps .step-indicator {
+  background-color: var(--dark-bg);
+  color: var(--glow-color);
+  border: 2px solid var(--glow-color);
+  box-shadow: 0 0 10px var(--glow-color);
+}
+
+.retro-body .progress-steps .step-indicator.completed {
+  background-color: var(--accent-glow);
+  border-color: var(--accent-glow);
+}
+
+.retro-body .progress-steps .step-indicator.current {
+  border-width: 3px;
+  box-shadow: 0 0 15px var(--glow-color);
+}
+
+/* Retro style for footer */
+.retro-body footer {
+  color: rgba(255, 217, 102, 0.6);
+  font-family: 'VT323', 'Space Mono', monospace;
 }

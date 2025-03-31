@@ -12,16 +12,16 @@ const SuggestionItem = ({
   
   return (
     <div className={`p-4 mb-3 rounded-lg border transition-colors suggestion-item ${
-      isSelected ? 'bg-green-50 border-green-300 selected' : 'bg-white border-gray-200'
+      isSelected ? 'bg-black/60 border-[var(--accent-glow)] selected shadow-[0_0_10px_rgba(164,208,109,0.3)]' : 'bg-black/40 border-[var(--glow-color)]/30'
     }`}>
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <p className="text-sm text-gray-800">{suggestion}</p>
+          <p className="text-sm text-[var(--glow-color)]">{suggestion}</p>
           
           {showComment && (
-            <div className="mt-3 pt-2 border-t border-gray-200">
+            <div className="mt-3 pt-2 border-t border-[var(--glow-color)]/30">
               <textarea
-                className="w-full p-2 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-primary focus:border-primary"
+                className="w-full p-2 text-sm bg-black/70 text-[var(--glow-color)] border border-[var(--glow-color)] rounded focus:ring-1 focus:ring-[var(--glow-color)] focus:border-[var(--glow-color)] shadow-[0_0_5px_rgba(255,217,102,0.2)]"
                 placeholder="Add specific instructions for this suggestion..."
                 value={comment}
                 onChange={(e) => onCommentChange(index, e.target.value)}
@@ -31,12 +31,13 @@ const SuggestionItem = ({
           )}
           
           <button
-            className="mt-2 text-xs text-primary hover:text-primary-dark underline flex items-center"
+            className="mt-2 text-xs text-[var(--secondary-glow)] hover:text-[var(--secondary-glow)]/80 underline flex items-center"
             onClick={() => setShowComment(!showComment)}
+            style={{ textShadow: '0 0 3px rgba(255, 107, 53, 0.3)' }}
           >
             {showComment ? 'Hide Comment' : comment ? 'Edit Comment' : 'Add Comment'}
             {comment && !showComment && (
-              <span className="ml-1 text-green-500 text-xs">•</span>
+              <span className="ml-1 text-[var(--accent-glow)] text-xs">•</span>
             )}
           </button>
         </div>
@@ -44,8 +45,8 @@ const SuggestionItem = ({
           <button
             className={`px-3 py-1 rounded-full text-xs font-medium transition-colors selection-button ${
               isSelected 
-                ? 'bg-green-500 text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-[var(--accent-glow)] text-black border border-[var(--accent-glow)] shadow-[0_0_5px_rgba(164,208,109,0.5)]' 
+                : 'bg-black text-[var(--glow-color)] border border-[var(--glow-color)]/50 hover:border-[var(--glow-color)]'
             }`}
             onClick={() => onToggle(index, true)}
             aria-label="Accept suggestion"
@@ -55,8 +56,8 @@ const SuggestionItem = ({
           <button
             className={`px-3 py-1 rounded-full text-xs font-medium transition-colors selection-button ${
               !isSelected 
-                ? 'bg-red-500 text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-[var(--secondary-glow)] text-black border border-[var(--secondary-glow)] shadow-[0_0_5px_rgba(255,107,53,0.5)]' 
+                : 'bg-black text-[var(--glow-color)] border border-[var(--glow-color)]/50 hover:border-[var(--glow-color)]'
             }`}
             onClick={() => onToggle(index, false)}
             aria-label="Reject suggestion"

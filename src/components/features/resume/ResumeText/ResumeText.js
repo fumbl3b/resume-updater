@@ -5,7 +5,7 @@ const ResumeText = ({ text }) => {
   
   return (
     <div className="resume-text">
-      <pre className="whitespace-pre-wrap font-sans text-gray-800 leading-relaxed">
+      <pre className="whitespace-pre-wrap font-mono text-[var(--glow-color)]/90 leading-relaxed" style={{ fontFamily: "'Space Mono', monospace" }}>
         {text}
       </pre>
     </div>

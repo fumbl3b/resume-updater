@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resum8.io - AI-Powered Resume Optimization</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono&display=swap');
+    
+    :root {
+      --glow-color: #FFD966;
+      --secondary-glow: #FF6B35;
+      --accent-glow: #A4D06D;
+      --dark-bg: #000000;
+      --text-shadow: 0 0 5px var(--glow-color), 0 0 10px var(--glow-color);
+      --text-shadow-dim: 0 0 2px var(--glow-color);
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'VT323', 'Space Mono', monospace;
+      background-color: var(--dark-bg);
+      color: var(--glow-color);
+      line-height: 1.5;
+      overflow-x: hidden;
+      position: relative;
+    }
+    
+    /* CRT screen effect */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.3;
+    }
+    
+    /* Subtle screen flicker animation */
+    @keyframes flicker {
+      0% { opacity: 0.98; }
+      2% { opacity: 0.93; }
+      4% { opacity: 0.97; }
+      19% { opacity: 1; }
+      21% { opacity: 0.98; }
+      34% { opacity: 0.97; }
+      50% { opacity: 0.99; }
+      60% { opacity: 0.95; }
+      68% { opacity: 1; }
+      75% { opacity: 0.99; }
+      88% { opacity: 0.98; }
+      100% { opacity: 0.93; }
+    }
+    
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+        circle at center,
+        transparent 60%,
+        rgba(0, 0, 0, 0.6) 100%
+      );
+      pointer-events: none;
+      z-index: 999;
+      animation: flicker 8s infinite;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    header {
+      padding: 20px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 217, 102, 0.3);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--glow-color);
+      text-shadow: var(--text-shadow);
+      letter-spacing: 2px;
+    }
+    
+    .logo-img {
+      margin-right: 10px;
+      width: 40px;
+      height: 40px;
+      position: relative;
+    }
+    
+    .logo-img::before {
+      content: ">";
+      position: absolute;
+      top: 0;
+      left: 0;
+      font-size: 32px;
+      color: var(--glow-color);
+      text-shadow: var(--text-shadow);
+    }
+    
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 30px;
+    }
+    
+    nav a {
+      color: var(--glow-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s;
+      text-shadow: var(--text-shadow-dim);
+      font-size: 20px;
+    }
+    
+    nav a:hover {
+      color: var(--accent-glow);
+      text-shadow: 0 0 10px var(--accent-glow);
+    }
+    
+    .hero {
+      display: flex;
+      align-items: center;
+      padding: 80px 0;
+      gap: 60px;
+      min-height: 70vh;
+      position: relative;
+    }
+    
+    .hero-content {
+      flex: 1;
+    }
+    
+    .hero h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      color: var(--glow-color);
+      text-shadow: var(--text-shadow);
+      letter-spacing: 2px;
+    }
+    
+    .hero p {
+      font-size: 22px;
+      margin-bottom: 30px;
+      line-height: 1.6;
+      color: rgba(255, 217, 102, 0.8);
+      max-width: 600px;
+    }
+    
+    .blink {
+      animation: blink 1s step-end infinite;
+    }
+    
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    
+    .terminal-text {
+      font-family: 'Space Mono', monospace;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border: 1px solid var(--glow-color);
+      border-radius: 6px;
+      position: relative;
+      margin-bottom: 30px;
+    }
+    
+    .terminal-text::before {
+      content: "> AI RESUME OPTIMIZER v1.0";
+      display: block;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: var(--accent-glow);
+    }
+    
+    .cta-button {
+      display: inline-block;
+      background-color: transparent;
+      color: var(--secondary-glow);
+      padding: 12px 30px;
+      border: 2px solid var(--secondary-glow);
+      border-radius: 6px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: all 0.3s;
+      font-size: 20px;
+      text-shadow: 0 0 5px var(--secondary-glow);
+      box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+    }
+    
+    .cta-button:hover {
+      background-color: rgba(255, 107, 53, 0.2);
+      box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+      text-shadow: 0 0 8px var(--secondary-glow);
+    }
+    
+    .hero-image {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .hero-image::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to bottom right,
+        rgba(255, 217, 102, 0.05),
+        rgba(255, 217, 102, 0.01)
+      );
+      pointer-events: none;
+    }
+    
+    .section-title {
+      text-align: center;
+      font-size: 36px;
+      color: var(--glow-color);
+      margin-bottom: 60px;
+      text-shadow: var(--text-shadow);
+      letter-spacing: 2px;
+      position: relative;
+    }
+    
+    .section-title::after {
+      content: "";
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 3px;
+      background-color: var(--glow-color);
+      box-shadow: 0 0 10px var(--glow-color);
+    }
+    
+    .process-section {
+      padding: 80px 0;
+      position: relative;
+    }
+    
+    .process-steps {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 60px;
+      position: relative;
+    }
+    
+    .process-steps::before {
+      content: "";
+      position: absolute;
+      top: 30px;
+      left: 80px;
+      right: 80px;
+      height: 3px;
+      background-color: rgba(255, 217, 102, 0.3);
+      z-index: 0;
+    }
+    
+    .process-step {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 0 20px;
+    }
+    
+    .step-number {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: var(--dark-bg);
+      border: 3px solid var(--glow-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 0 15px var(--glow-color);
+      position: relative;
+    }
+    
+    .step-title {
+      font-size: 24px;
+      margin-bottom: 15px;
+      color: var(--glow-color);
+      text-shadow: var(--text-shadow-dim);
+    }
+    
+    .step-desc {
+      font-size: 18px;
+      color: rgba(255, 217, 102, 0.8);
+    }
+    
+    .features-section {
+      padding: 80px 0;
+      position: relative;
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+    }
+    
+    .feature-card {
+      border: 1px solid var(--glow-color);
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 30px;
+      border-radius: 6px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 0 20px rgba(255, 217, 102, 0.2);
+    }
+    
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background-color: var(--glow-color);
+      box-shadow: 0 0 10px var(--glow-color);
+    }
+    
+    .feature-icon {
+      font-size: 36px;
+      margin-bottom: 20px;
+      color: var(--accent-glow);
+      text-shadow: 0 0 5px var(--accent-glow);
+    }
+    
+    .feature-card h3 {
+      font-size: 24px;
+      margin-bottom: 15px;
+      color: var(--glow-color);
+      text-shadow: var(--text-shadow-dim);
+    }
+    
+    .testimonials {
+      padding: 80px 0;
+      position: relative;
+    }
+    
+    .testimonial-card {
+      border: 1px solid rgba(255, 217, 102, 0.3);
+      background-color: rgba(0, 0, 0, 0.3);
+      padding: 30px;
+      border-radius: 6px;
+      margin-top: 40px;
+      position: relative;
+    }
+    
+    .testimonial-card::before {
+      content: ">";
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+      color: var(--accent-glow);
+      opacity: 0.5;
+    }
+    
+    .quote {
+      font-size: 20px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      padding-left: 30px;
+      font-style: italic;
+      color: rgba(255, 217, 102, 0.9);
+    }
+    
+    .author {
+      text-align: right;
+      font-size: 18px;
+      color: var(--glow-color);
+    }
+    
+    .author span {
+      color: var(--accent-glow);
+      display: block;
+      font-size: 16px;
+      margin-top: 5px;
+    }
+    
+    .cta-section {
+      padding: 100px 0;
+      text-align: center;
+      position: relative;
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+    
+    .cta-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .cta-content h2 {
+      font-size: 42px;
+      margin-bottom: 30px;
+      color: var(--glow-color);
+      text-shadow: var(--text-shadow);
+    }
+    
+    .cta-content p {
+      font-size: 22px;
+      margin-bottom: 40px;
+      color: rgba(255, 217, 102, 0.8);
+    }
+    
+    footer {
+      padding: 60px 0 30px;
+      border-top: 1px solid rgba(255, 217, 102, 0.3);
+      position: relative;
+    }
+    
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+    
+    .footer-column {
+      flex: 1;
+      padding: 0 20px;
+    }
+    
+    .footer-column h3 {
+      font-size: 22px;
+      margin-bottom: 20px;
+      color: var(--glow-color);
+      text-shadow: var(--text-shadow-dim);
+    }
+    
+    .footer-links {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+    
+    .footer-links a {
+      color: rgba(255, 217, 102, 0.8);
+      text-decoration: none;
+      transition: all 0.3s;
+      font-size: 16px;
+    }
+    
+    .footer-links a:hover {
+      color: var(--glow-color);
+      text-shadow: var(--text-shadow-dim);
+    }
+    
+    .copyright {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 217, 102, 0.2);
+      color: rgba(255, 217, 102, 0.6);
+      font-size: 16px;
+    }
+    
+    /* Cursor effect */
+    .typing::after {
+      content: "_";
+      display: inline-block;
+      animation: blink 1s step-end infinite;
+    }
+    
+    @media (max-width: 768px) {
+      .hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 40px 0;
+      }
+      
+      .process-steps {
+        flex-direction: column;
+        gap: 60px;
+      }
+      
+      .process-steps::before {
+        left: 50%;
+        width: 3px;
+        height: 80%;
+        top: 60px;
+        right: auto;
+        transform: translateX(-50%);
+      }
+      
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .footer-content {
+        flex-direction: column;
+        gap: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <div class="logo-img"></div>
+        Resum8.io
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#how-it-works">Process</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#testimonials">Reviews</a></li>
+          <li><a href="#start" class="cta-button">Login</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="typing">AI-POWERED RESUME OPTIMIZATION</h1>
+        <div class="terminal-text">
+          <p>> Analyzing job description...<br>
+          > Extracting key requirements...<br>
+          > Matching skills to your profile...<br>
+          > Generating optimized resume...<br>
+          > Download ready. Success rate: 93%<span class="blink">_</span></p>
+        </div>
+        <p>Resum8.io uses advanced AI to analyze job listings, match your experience, and generate tailored resumes that bypass ATS systems and land interviews. Currently optimized for IT roles with trade expansions coming soon.</p>
+        <a href="#start" class="cta-button">START OPTIMIZING NOW</a>
+      </div>
+      <div class="hero-image">
+        <img src="/logo.png" alt="AI Resume Optimization" />
+      </div>
+    </div>
+  </section>
+  
+  <section id="how-it-works" class="process-section">
+    <div class="container">
+      <h2 class="section-title">THE PROCESS</h2>
+      <div class="process-steps">
+        <div class="process-step">
+          <div class="step-number">1</div>
+          <h3 class="step-title">PASTE JOB LISTING</h3>
+          <p class="step-desc">Copy and paste the job description you want to apply for. Our AI identifies key requirements and skills.</p>
+        </div>
+        <div class="process-step">
+          <div class="step-number">2</div>
+          <h3 class="step-title">UPLOAD YOUR RESUME</h3>
+          <p class="step-desc">Upload your existing resume. The system analyzes your experience and skills against the job requirements.</p>
+        </div>
+        <div class="process-step">
+          <div class="step-number">3</div>
+          <h3 class="step-title">DOWNLOAD & APPLY</h3>
+          <p class="step-desc">Get your fully optimized, ATS-friendly resume with highlighted matching skills and properly formatted sections.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section id="features" class="features-section">
+    <div class="container">
+      <h2 class="section-title">KEY FEATURES</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">&lt;/&gt;</div>
+          <h3>IT ROLE SPECIALIZATION</h3>
+          <p>Optimized keyword matching for software development, cybersecurity, system administration, data science, and more IT positions.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128202;</div>
+          <h3>ATS COMPATIBILITY</h3>
+          <p>Format your resume to pass through Applicant Tracking Systems with the right keywords, formatting, and section structure.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128300;</div>
+          <h3>SKILL GAP ANALYSIS</h3>
+          <p>Identify missing skills and experience with suggestions for addressing gaps in your application and cover letter.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128190;</div>
+          <h3>MULTIPLE FORMATS</h3>
+          <p>Download your optimized resume in PDF, DOCX, or plaintext formats, depending on application requirements.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128101;</div>
+          <h3>EXPERIENCE HIGHLIGHTING</h3>
+          <p>Automatically emphasizes relevant past experience and achievements that match the job description.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128195;</div>
+          <h3>COVER LETTER GENERATION</h3>
+          <p>Creates matching cover letters that complement your optimized resume and address specific job requirements.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section id="testimonials" class="testimonials">
+    <div class="container">
+      <h2 class="section-title">USER FEEDBACK</h2>
+      <div class="testimonial-card">
+        <p class="quote">After applying to 30+ software developer positions with no responses, I used Resum8.io to optimize my resume for each application. Within two weeks, I had 5 interview requests. The AI identified keyword gaps I never would have noticed.</p>
+        <div class="author">
+          Alex K. <span>Full Stack Developer</span>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="quote">As a career-switcher into cybersecurity, I was struggling to get my resume noticed. Resum8.io helped me translate my transferable skills into industry-specific language. The before/after difference was amazing.</p>
+        <div class="author">
+          Priya M. <span>Security Analyst</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>READY TO OPTIMIZE YOUR RESUME?</h2>
+        <p>Get more interviews with targeted resumes that match exactly what employers are looking for.</p>
+        <a href="#start" class="cta-button">START OPTIMIZING NOW</a>
+      </div>
+    </div>
+  </section>
+  
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>Resum8.io</h3>
+          <p>AI-powered resume optimization for IT professionals. Tailored to match job descriptions and pass ATS systems.</p>
+        </div>
+        <div class="footer-column">
+          <h3>Resources</h3>
+          <ul class="footer-links">
+            <li><a href="#">Resume Tips</a></li>
+            <li><a href="#">IT Career Blog</a></li>
+            <li><a href="#">Technical Interview Guide</a></li>
+            <li><a href="#">Job Search Strategy</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Support</h3>
+          <ul class="footer-links">
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        <p>&copy; 2025 Resum8.io | All rights reserved_</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

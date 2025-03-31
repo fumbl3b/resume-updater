@@ -1,9 +1,10 @@
 .resume-text {
   margin-top: 20px;
   padding: 20px;
-  background: white;
+  background: rgba(0, 0, 0, 0.7);
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
+  box-shadow: 0 0 15px rgba(255, 217, 102, 0.2);
+  border: 1px solid var(--glow-color);
 }
 
 .text-content {
@@ -11,6 +12,8 @@
   overflow-y: auto;
   white-space: pre-wrap;
   padding: 10px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--glow-color);
   border-radius: 4px;
+  color: var(--glow-color);
+  font-family: 'Space Mono', monospace;
 }

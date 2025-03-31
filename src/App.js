@@ -155,6 +155,9 @@ function App() {
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [resumeGenerating, setResumeGenerating] = useState(false);
   
+  // Navigation state
+  const [shakingStep, setShakingStep] = useState(null);
+  
   // Dev mode state
   const [showDevPanel, setShowDevPanel] = useState(false);
   const [apiLatency, setApiLatency] = useState(0);
@@ -565,6 +568,7 @@ function App() {
 
   // Render different steps
   if (currentStep === STEPS.LANDING) {
+    // Return the retro landing page
     return <Hero onGetStarted={handleGetStarted} />;
   }
 
@@ -585,6 +589,38 @@ function App() {
   const currentStepNumber = getStepNumber(currentStep);
   const totalSteps = 6; // Not counting landing page
 
+  // Navigate to a specific step if allowed
+  const navigateToStep = (stepIndex) => {
+    const stepOrder = [
+      STEPS.LANDING,
+      STEPS.JOB_DESCRIPTION,
+      STEPS.JOB_ANALYSIS,
+      STEPS.RESUME_UPLOAD,
+      STEPS.RESUME_PREVIEW,
+      STEPS.SUGGESTIONS,
+      STEPS.FINAL_RESUME
+    ];
+    
+    // Current step index
+    const currentIndex = getStepNumber(currentStep);
+    
+    // Only allow navigation to completed steps or the current step
+    if (stepIndex <= currentIndex) {
+      const targetStep = stepOrder[stepIndex];
+      logger.action('Navigate', { from: currentStep, to: targetStep });
+      setCurrentStep(targetStep);
+    } else {
+      // Animate the current step indicator to show it's not possible
+      logger.action('Navigation Blocked', { attemptedStep: stepIndex, currentStep: currentIndex });
+      
+      // Trigger shake animation
+      setShakingStep(stepIndex);
+      setTimeout(() => {
+        setShakingStep(null);
+      }, 820); // Animation duration is 820ms
+    }
+  };
+  
   // Toggle dev panel
   const toggleDevPanel = () => {
     setShowDevPanel(prev => !prev);
@@ -610,8 +646,9 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen p-8 bg-gradient-to-br from-primary-dark via-primary to-primary-light">
-      <Logo />
+    <div className={`min-h-screen p-8 ${currentStep !== STEPS.LANDING ? "retro-body" : ""}`}>
+      {/* Only show the Logo on non-landing pages */}
+      {currentStep !== STEPS.LANDING && <Logo />}
       
       {/* Dev Mode Button - only visible in dev mode */}
       {IS_DEV_MODE && (
@@ -715,24 +752,67 @@ function App() {
       
       {/* Progress Indicator */}
       {currentStep !== STEPS.LANDING && (
-        <div className="max-w-4xl mx-auto mb-4">
-          <div className="flex justify-between mb-2">
-            {Array.from({ length: totalSteps }).map((_, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium 
-                  ${i < currentStepNumber ? 'bg-green-500 text-white' : 
-                    i === currentStepNumber ? 'bg-primary text-white' : 'bg-gray-300 text-gray-600'}`}>
-                  {i + 1}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="relative">
-            <div className="absolute h-1 bg-gray-300 top-0 left-0 right-0"></div>
+        <div className="max-w-4xl mx-auto mb-6">
+          <div className="flex justify-between mb-2 relative progress-steps">
+            {/* Progress Bar */}
+            <div className="absolute h-1 bg-gray-300 top-7 left-4 right-4 z-0"></div>
             <div 
-              className="absolute h-1 bg-primary top-0 left-0 transition-all duration-300" 
-              style={{ width: `${(currentStepNumber / (totalSteps - 1)) * 100}%` }}
+              className="absolute h-1 bg-[var(--glow-color)] top-7 left-4 z-0 transition-all duration-500 ease-in-out" 
+              style={{ width: `${(currentStepNumber / (totalSteps - 1)) * (100 - (8/totalSteps))}%` }}
             ></div>
+            
+            {/* Step Indicators */}
+            {Array.from({ length: totalSteps }).map((_, i) => {
+              // Determine if this step is completed, current, or upcoming
+              const isCompleted = i < currentStepNumber;
+              const isCurrent = i === currentStepNumber;
+              const isUpcoming = i > currentStepNumber;
+              
+              // Get step name for hover tooltip
+              const stepOrder = [
+                STEPS.LANDING,
+                STEPS.JOB_DESCRIPTION,
+                STEPS.JOB_ANALYSIS,
+                STEPS.RESUME_UPLOAD,
+                STEPS.RESUME_PREVIEW,
+                STEPS.SUGGESTIONS,
+                STEPS.FINAL_RESUME
+              ];
+              const stepName = stepOrder[i+1].replace(/_/g, ' ');
+              
+              return (
+                <div key={i} className="flex flex-col items-center z-10 relative">
+                  <button
+                    onClick={() => navigateToStep(i+1)}
+                    disabled={isUpcoming}
+                    className={`relative w-14 h-14 rounded-full flex items-center justify-center text-sm font-medium 
+                      transform transition-all duration-300 ease-in-out step-indicator
+                      ${isCompleted ? 'bg-[var(--accent-glow)] text-black hover:bg-[var(--accent-glow)]/80 shadow-md hover:scale-110 completed' : 
+                        isCurrent ? 'bg-[var(--glow-color)] text-black shadow-lg scale-110 pulse-animation current' : 
+                        'bg-gray-700 text-gray-300 cursor-not-allowed opacity-70 disabled'}
+                      ${shakingStep === i+1 ? 'shake' : ''}`}
+                    title={`${isUpcoming ? 'Complete current step first' : `Go to ${stepName}`}`}
+                  >
+                    <span className="text-sm">
+                      {isCompleted ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      ) : (
+                        i + 1
+                      )}
+                    </span>
+                  </button>
+                  
+                  <div className={`mt-2 text-xs text-center max-w-[80px] font-medium step-name
+                    transition-all duration-300 ease-in-out
+                    ${isCurrent ? 'text-[var(--glow-color)] font-semibold' : 
+                      isCompleted ? 'text-[var(--accent-glow)]' : 'text-gray-500'}`}>
+                    {stepName}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -754,19 +834,20 @@ function App() {
         </div>
       )}
       
-      <main className="max-w-4xl mx-auto space-y-6 bg-white/95 backdrop-blur-md rounded-lg p-8 shadow-lg">
+      <main className="max-w-4xl mx-auto space-y-6 bg-black/90 backdrop-blur-md rounded-lg p-8 shadow-lg border border-[var(--glow-color)]" 
+        style={{ boxShadow: '0 0 20px rgba(255, 217, 102, 0.2)' }}>
         {/* Step 1: Job Description */}
         {currentStep === STEPS.JOB_DESCRIPTION && (
           <>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-primary">Step 1: Enter Job Description</h2>
+              <h2 className="text-2xl font-bold">Step 1: Enter Job Description</h2>
             </div>
             <JobDescription 
               value={jobDescription} 
               onChange={setJobDescription} 
             />
             <button 
-              className="w-full py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors"
+              className="w-full py-3 rounded-lg"
               onClick={handleAnalyzeJob}
               disabled={!jobDescription.trim() || keywordLoading || benefitsLoading}
             >
@@ -776,7 +857,7 @@ function App() {
             {(keywordLoading || benefitsLoading) && (
               <div className="flex flex-col items-center justify-center p-4">
                 <LoadingSpinner />
-                <p className="mt-2 text-primary">Analyzing job description...</p>
+                <p className="mt-2 text-[var(--glow-color)]">Analyzing job description...</p>
               </div>
             )}
           </>
@@ -786,33 +867,33 @@ function App() {
         {currentStep === STEPS.JOB_ANALYSIS && (
           <>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-primary">Step 2: Review Job Analysis</h2>
+              <h2 className="text-2xl font-bold">Step 2: Review Job Analysis</h2>
               <button 
                 onClick={handleBack}
-                className="px-3 py-1 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-100"
+                className="px-3 py-1 text-sm rounded"
               >
                 Back
               </button>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg mb-4">
+            <div className="bg-black/60 p-4 rounded-lg mb-4 border border-[var(--glow-color)]">
               <div 
                 className="flex items-center justify-between cursor-pointer" 
                 onClick={() => setShowJobDesc(prev => !prev)}
               >
-                <h3 className="text-lg font-medium text-primary">Job Description</h3>
-                <button className="text-sm px-2 py-1 text-gray-500 hover:bg-gray-200 rounded">
+                <h3 className="text-lg font-medium text-[var(--glow-color)]">Job Description</h3>
+                <button className="text-sm px-2 py-1 text-[var(--glow-color)]/70 hover:bg-black/40 rounded border border-[var(--glow-color)]/50">
                   {showJobDesc ? 'Hide' : 'Show'}
                 </button>
               </div>
               {showJobDesc && (
-                <div className="mt-2 pt-2 border-t border-gray-200">
+                <div className="mt-2 pt-2 border-t border-[var(--glow-color)]/30">
                   <p className="whitespace-pre-wrap">{jobDescription}</p>
                 </div>
               )}
             </div>
             
-            <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
-              <h3 className="text-lg font-medium text-primary mb-2">Key Skills & Requirements</h3>
+            <div className="bg-black/60 rounded-lg border border-[var(--glow-color)] p-4 mb-4 shadow-[0_0_15px_rgba(255,217,102,0.2)]">
+              <h3 className="text-lg font-medium text-[var(--glow-color)] mb-2">Key Skills & Requirements</h3>
               <InsightsList 
                 keywords={keywords}
                 benefits={benefits}
@@ -822,7 +903,7 @@ function App() {
             </div>
             
             <button 
-              className="w-full py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors"
+              className="w-full py-3 rounded-lg"
               onClick={handleContinueToResume}
             >
               Continue to Resume Upload
@@ -834,16 +915,16 @@ function App() {
         {currentStep === STEPS.RESUME_UPLOAD && (
           <>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-primary">Step 3: Upload Your Resume</h2>
+              <h2 className="text-2xl font-bold">Step 3: Upload Your Resume</h2>
               <button 
                 onClick={handleBack}
-                className="px-3 py-1 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-100"
+                className="px-3 py-1 text-sm rounded"
               >
                 Back
               </button>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <h3 className="text-lg font-medium text-primary mb-2">Target Skills</h3>
+            <div className="bg-black/60 p-4 rounded-lg mb-4 border border-[var(--glow-color)]">
+              <h3 className="text-lg font-medium mb-2">Target Skills</h3>
               <p>{keywords}</p>
             </div>
             
@@ -853,7 +934,7 @@ function App() {
             />
             
             <button 
-              className="w-full py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors mt-4"
+              className="w-full py-3 rounded-lg mt-4"
               onClick={handleExtractText}
               disabled={!resumeFile}
             >
@@ -866,18 +947,18 @@ function App() {
         {currentStep === STEPS.RESUME_PREVIEW && (
           <>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-primary">Step 4: Review Your Resume</h2>
+              <h2 className="text-2xl font-bold">Step 4: Review Your Resume</h2>
               <button 
                 onClick={handleBack}
-                className="px-3 py-1 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-100"
+                className="px-3 py-1 text-sm rounded"
               >
                 Back
               </button>
             </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-4">
+            <div className="bg-black/60 rounded-lg border border-[var(--glow-color)] p-6 mb-4 shadow-[0_0_15px_rgba(255,217,102,0.2)]">
               <div className="flex items-center mb-4">
-                <div className="bg-primary-light p-2 rounded-full mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+                <div className="bg-black/80 p-2 rounded-full mr-3 border border-[var(--glow-color)]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--glow-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                     <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -885,7 +966,7 @@ function App() {
                     <polyline points="10 9 9 9 8 9"></polyline>
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-primary">Resume Content</h3>
+                <h3 className="text-xl font-bold text-[var(--glow-color)]">Resume Content</h3>
               </div>
               
               <div className="p-4 bg-yellow-50 border-l-4 border-yellow-400 mb-4">
@@ -897,11 +978,11 @@ function App() {
               <ResumeText text={resumeText} />
             </div>
             
-            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-4 text-center">
-              <h3 className="text-lg font-medium text-primary mb-3">Ready for AI-Powered Suggestions?</h3>
-              <p className="text-gray-600 mb-4">Get personalized recommendations to tailor your resume for this job</p>
+            <div className="bg-black/60 rounded-lg border border-[var(--glow-color)] p-6 mb-4 text-center shadow-[0_0_15px_rgba(255,217,102,0.2)]">
+              <h3 className="text-lg font-medium text-[var(--glow-color)] mb-3">Ready for AI-Powered Suggestions?</h3>
+              <p className="text-[var(--glow-color)]/80 mb-4">Get personalized recommendations to tailor your resume for this job</p>
               <button 
-                className="px-6 py-3 bg-primary text-white font-medium rounded-full hover:bg-primary-dark transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1 flex items-center justify-center mx-auto"
+                className="px-6 py-3 font-medium rounded-full shadow-md hover:shadow-lg transform hover:-translate-y-1 flex items-center justify-center mx-auto retro-cta-button"
                 onClick={handleGetSuggestions}
                 disabled={suggestionsLoading || !resumeText}
               >
@@ -929,22 +1010,22 @@ function App() {
         {currentStep === STEPS.SUGGESTIONS && (
           <>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-primary">Step 5: Review Suggestions</h2>
+              <h2 className="text-2xl font-bold">Step 5: Review Suggestions</h2>
               <button 
                 onClick={handleBack}
-                className="px-3 py-1 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-100"
+                className="px-3 py-1 text-sm rounded"
               >
                 Back
               </button>
             </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-4">
+            <div className="bg-black/60 rounded-lg border border-[var(--glow-color)] p-6 mb-4 shadow-[0_0_15px_rgba(255,217,102,0.2)]">
               <div className="flex items-center mb-4">
-                <div className="bg-primary-light p-2 rounded-full mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+                <div className="bg-black/80 p-2 rounded-full mr-3 border border-[var(--glow-color)]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--glow-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-primary">Improvement Suggestions</h3>
+                <h3 className="text-xl font-bold text-[var(--glow-color)]">Improvement Suggestions</h3>
               </div>
               
               {/* Selectable suggestions list */}
@@ -959,16 +1040,16 @@ function App() {
               />
             </div>
             
-            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-4 text-center">
-              <h3 className="text-lg font-medium text-primary mb-3">Ready to Create Your Optimized Resume?</h3>
-              <p className="text-gray-600 mb-4">
+            <div className="bg-black/60 rounded-lg border border-[var(--glow-color)] p-6 mb-4 text-center shadow-[0_0_15px_rgba(255,217,102,0.2)]">
+              <h3 className="text-lg font-medium text-[var(--glow-color)] mb-3">Ready to Create Your Optimized Resume?</h3>
+              <p className="text-[var(--glow-color)]/80 mb-4">
                 Click below to generate a professional LaTeX resume that incorporates your selected suggestions 
-                <span className="font-semibold">
+                <span className="font-semibold text-[var(--accent-glow)]">
                   ({Object.values(selectedSuggestions).filter(Boolean).length} of {suggestionsList.suggestions?.length || 0})
                 </span>
               </p>
               <button 
-                className="px-6 py-3 bg-primary text-white font-medium rounded-full hover:bg-primary-dark transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1 flex items-center justify-center mx-auto"
+                className="px-6 py-3 font-medium rounded-full shadow-md hover:shadow-lg transform hover:-translate-y-1 flex items-center justify-center mx-auto retro-cta-button"
                 onClick={handleGenerateResume}
                 disabled={resumeGenerating || Object.values(selectedSuggestions).filter(Boolean).length === 0}
               >
@@ -1005,10 +1086,10 @@ function App() {
         {currentStep === STEPS.FINAL_RESUME && (
           <>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-primary">Step 6: Your Optimized Resume</h2>
+              <h2 className="text-2xl font-bold">Step 6: Your Optimized Resume</h2>
               <button 
                 onClick={handleBack}
-                className="px-3 py-1 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-100"
+                className="px-3 py-1 text-sm rounded"
               >
                 Back
               </button>
@@ -1016,13 +1097,13 @@ function App() {
             
             <div className="flex flex-col items-center">
               <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-primary">Your Optimized Resume is Ready!</h3>
-                <p className="text-gray-600 mt-2">Preview your resume below or download it to use right away</p>
+                <h3 className="text-2xl font-bold">Your Optimized Resume is Ready!</h3>
+                <p className="text-[var(--glow-color)]/80 mt-2">Preview your resume below or download it to use right away</p>
               </div>
               
-              <div className="w-full max-w-xl mx-auto bg-white rounded-lg border border-gray-200 p-4 mb-6 shadow-md">
+              <div className="w-full max-w-xl mx-auto bg-black/70 rounded-lg border border-[var(--glow-color)] p-4 mb-6 shadow-[0_0_15px_rgba(255,217,102,0.3)]">
                 {pdfContent ? (
-                  <div className="w-full aspect-[1/1.414] min-h-[600px] border border-gray-100 rounded bg-gray-50 relative pdf-preview">
+                  <div className="w-full aspect-[1/1.414] min-h-[600px] border border-[var(--glow-color)] rounded bg-white/90 relative pdf-preview shadow-[0_0_10px_rgba(255,217,102,0.3)]">
                     <iframe
                       src={`data:application/pdf;base64,${pdfContent}#toolbar=0`}
                       className="w-full h-full"
@@ -1031,7 +1112,7 @@ function App() {
                     {/* <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 hidden pdf-fallback">
                       <div className="text-center p-4">
                         <p className="text-gray-700 mb-4">Your browser may not display the PDF preview correctly.</p>
-                        <p className="text-primary">Please use the download buttons below to view your resume.</p>
+                        <p className="text-[var(--glow-color)]">Please use the download buttons below to view your resume.</p>
                       </div>
                     </div> */}
                   </div>
@@ -1040,14 +1121,14 @@ function App() {
                 )}
               </div>
               
-              <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-8 mb-6 w-full max-w-2xl">
-                <h3 className="text-lg font-medium text-primary mb-6 text-center">Download Your Resume</h3>
+              <div className="bg-gradient-to-r from-black/80 to-black/60 rounded-xl p-8 mb-6 w-full max-w-2xl border border-[var(--glow-color)] shadow-[0_0_15px_rgba(255,217,102,0.3)]">
+                <h3 className="text-lg font-medium text-[var(--glow-color)] mb-6 text-center">Download Your Resume</h3>
                 <DownloadLinks 
                   texContent={texContent}
                   pdfContent={pdfContent}
                 />
                 
-                <div className="mt-6 text-center text-sm text-gray-500">
+                <div className="mt-6 text-center text-sm text-[var(--glow-color)]/70">
                   <p>These files are saved locally on your device. Your privacy is our priority.</p>
                 </div>
               </div>
@@ -1055,14 +1136,14 @@ function App() {
             
             <div className="flex space-x-4">
               <button 
-                className="flex-1 py-3 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition-colors"
+                className="flex-1 py-3 bg-black/60 text-[var(--glow-color)] font-medium rounded-lg border border-[var(--glow-color)] hover:bg-black/40 shadow-[0_0_10px_rgba(255,217,102,0.2)]"
                 onClick={() => setCurrentStep(STEPS.JOB_DESCRIPTION)}
               >
                 Start Over
               </button>
               
               <button 
-                className="flex-1 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors"
+                className="flex-1 py-3 font-medium rounded-lg retro-cta-button"
                 onClick={() => setCurrentStep(STEPS.SUGGESTIONS)}
               >
                 Back to Suggestions
@@ -1072,8 +1153,8 @@ function App() {
         )}
       </main>
       
-      <footer className="mt-8 text-center text-white text-sm opacity-80">
-        © 2024 Fumble Labs. All rights reserved.
+      <footer className="mt-8 text-center text-sm opacity-80">
+        © {new Date().getFullYear()} Resum8.io | All rights reserved<span className="retro-blink">_</span>
       </footer>
     </div>
   );

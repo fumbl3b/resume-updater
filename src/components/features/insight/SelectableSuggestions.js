@@ -15,14 +15,14 @@ const SelectableSuggestions = ({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-800">Suggested Improvements</h2>
-        <div className="text-sm bg-primary-light text-primary px-3 py-1 rounded-full">
+        <h2 className="text-xl font-semibold text-[var(--glow-color)]">Suggested Improvements</h2>
+        <div className="text-sm bg-black/80 text-[var(--glow-color)] px-3 py-1 rounded-full border border-[var(--glow-color)] shadow-[0_0_10px_rgba(255,217,102,0.3)]">
           {selectedCount} of {suggestions.suggestions.length} selected
         </div>
       </div>
       
-      <div className="p-4 bg-blue-50 border-l-4 border-blue-400 mb-4">
-        <p className="text-sm text-blue-700">
+      <div className="p-4 bg-black/40 border-l-4 border-[var(--accent-glow)] mb-4 rounded-r">
+        <p className="text-sm text-[var(--glow-color)]">
           Select which suggestions you want to apply to your resume. Click "Yes" to include a suggestion
           or "No" to exclude it from your optimized resume.
         </p>
@@ -37,7 +37,7 @@ const SelectableSuggestions = ({
           
           return (
             <div key={`section-${sectionIndex}`} className="mb-4">
-              <h3 className="text-lg font-medium text-primary mb-3 border-b pb-2">
+              <h3 className="text-lg font-medium text-[var(--glow-color)] mb-3 border-b border-[var(--glow-color)]/30 pb-2" style={{ textShadow: '0 0 3px var(--glow-color)' }}>
                 {sectionTitle}
               </h3>
               
